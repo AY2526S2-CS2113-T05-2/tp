@@ -14,16 +14,11 @@ public class Parser {
 
         if (text.startsWith("create ")) {
             return prepareCreate(text);
-        }
-
-        else if (text.startsWith("batch")) {
+        } else if (text.startsWith("batch")) {
             return prepareBatch(text);
-        }
-
-        else if (text.startsWith("exit") || text.startsWith("quit")) {
+        } else if (text.startsWith("exit") || text.startsWith("quit")) {
             return new ExitCommand();
-        }
-        else  {
+        } else  {
             throw new MediStockException("Unknown command.");
         }
 
@@ -42,8 +37,7 @@ public class Parser {
     private static String getArgument(String text, int index1, int... index2) {
         if (index2.length > 0) {
             return text.substring(index1 + 2, index2[0]).trim();
-        }
-        else {
+        } else {
             return text.substring(index1+2).trim();
         }
     }
