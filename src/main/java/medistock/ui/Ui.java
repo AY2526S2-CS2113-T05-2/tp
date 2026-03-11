@@ -68,8 +68,10 @@ public class Ui {
     }
 
     public void printExit() {
+        printLine();
         System.out.println("Inventory saved");
         System.out.println("Thank you for using MediStock, have a nice day!");
+        printLine();
     }
 
     public static void printCreate(String name, String unit, int minimumThreshold) {
