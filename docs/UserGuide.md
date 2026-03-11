@@ -13,35 +13,37 @@
 > * Words in `UPPER_CASE` are parameters to be supplied by the user.
 > * flags before parameters such as `u/` must be keyed in as well. <br>
 >
-> *EXPIRY_DATE must* be formatted as **YYYY-MM-DD**.
-> Dosages should be included in *NAME*. ***[If Applicable]***
+> **EXPIRY_DATE must** be formatted as **YYYY-MM-DD**. <br>
+> **Dosage** should be included in **NAME**. *(if applicable)*
 
 ### Creating a new Medication Class: `create`
 Creates a new medication product in the database to be monitored.
 * **Format:** `create n/NAME u/UNIT min/THRESHOLD`
 * **Example:** `create n/Paracetamol 500mg u/Tablets min/250`
 * **Example Output:**
-  ```text
-  Product created: Paracetamol 500mg (tablets)
-  Minimum threshold: 500
-  ```
+
+    ```text
+    Product created: Paracetamol 500mg (tablets)
+    Minimum threshold: 500
+    ```
+  
 ### Listing all Medications: `list`
 List all items in the inventory with their corresponding stock quantity, earliest expiry       
 date and stock health status.
 * **Format:** `list`
 * **Example Output:**
-  ```text
-  Current Pharmaceutical Inventory: 
-  ____________________________________________________________
-  1. Paracetamol 500mg 
-        Total: 300 Tablets 
-        Earliest Exp: 2030-09-30
-        Status: Healthy
-  2. Vyvanse 70mg
-        Total: 60 Tablets 
-        Earliest Exp: 2028-06-07
-        Status: Critical
-  ____________________________________________________________
+    ```text
+    Current Pharmaceutical Inventory: 
+    ____________________________________________________________
+    1. Paracetamol 500mg 
+          Total: 300 Tablets 
+          Earliest Exp: 2030-09-30
+          Status: Healthy
+    2. Vyvanse 70mg
+          Total: 60 Tablets 
+          Earliest Exp: 2028-06-07
+          Status: Critical
+    ____________________________________________________________
   ```
 
 ### Deleting a Pharmaceutical: `delete`
@@ -49,32 +51,36 @@ Removes a task from your list permanently.
 * **Format:** `delete n/NAME` or `delete i/INDEX`
 * **Example:** `delete n/Vyvanse 70mg` or `delete i/2`
 * **Example Output:**
-  ```text
-  The following Pharmaceutical has been deleted   
-  ____________________________________________________________
-  2. Vyvanse 70mg
-   Total: 60 Tablets
-   Earliest Exp: 2028-06-07
-   Status: Critical
-  ____________________________________________________________
-  ```
+
+    ```text
+    The following Pharmaceutical has been deleted   
+    ____________________________________________________________
+    2. Vyvanse 70mg
+     Total: 60 Tablets
+     Earliest Exp: 2028-06-07
+     Status: Critical
+    ____________________________________________________________
+    ```
+  
 ### Adding an Item Batch: `batch`
 Adds a batch of a specific item to the inventory. 
 
 * **Format:** `batch n/NAME q/QUANTITY d/EXPIRY_DATE` <br>
 * **Example:** `batch n/Vyvanse 70mg q/200 q/2028-06-07`
 * **Example Output:**
-  ```text
-  Batch of 200 Tablets Vyvanse 70mg, expiring on 2028-06-07 
-  was successfully added to the inventory!
-  ____________________________________________________________
-  Stock of Vyvanse is now:
-    2. Vyvanse 70mg
-    Total: 260 Tablets
-    Earliest Exp: 2028-06-07
-    Status: Healthy
-  ____________________________________________________________
-  ```
+
+    ```text
+    Batch of 200 Tablets Vyvanse 70mg, expiring on 2028-06-07 
+    was successfully added to the inventory!
+    ____________________________________________________________
+    Stock of Vyvanse is now:
+      2. Vyvanse 70mg
+      Total: 260 Tablets
+      Earliest Exp: 2028-06-07
+      Status: Healthy
+    ____________________________________________________________
+    ```
+  
 ### Withdrawing Medication from the Inventory: `withdraw`, `wtd`
 Withdraws a quantity of the keyed in medication from the database. 
 * **Format:** `withdraw <PRODUCT_NAME> q/<QUANTITY>`  ***or*** <br>
@@ -82,28 +88,30 @@ Withdraws a quantity of the keyed in medication from the database.
   `wtd <PRODUCT_NAME> q/<QUANTITY>`
 * **Example:** `wtd Paracetamol 500mg q/50`
 * **Example Output:**
-  ```text
-  50 Tablets of Paracetamol has withdrawn from the Inventory 
-  ____________________________________________________________
-  Stock of Paracetamol is now:
-    1. Paracetamol 500mg
-    Total: 250 Tablets
-    Earliest Exp: 2030-09-30
-    Status: Crticial
-  ____________________________________________________________  
-  ```
+
+    ```text
+    50 Tablets of Paracetamol has withdrawn from the Inventory 
+    ____________________________________________________________
+    Stock of Paracetamol is now:
+      1. Paracetamol 500mg
+      Total: 250 Tablets
+      Earliest Exp: 2030-09-30
+      Status: Crticial
+    ____________________________________________________________  
+    ```
+  
 ### Quitting the Program: `exit`, `quit`
 Saves the inventory and safely exits from the application. <br>
 
 * Both `quit` and `exit` can be used to quit the application.
 * Example output of `exit`: 
 
-```text
-____________________________________________________________
-Inventory saved. 
-Thank you for using MediStock, have a nice day!`
-____________________________________________________________
-```
+    ```text
+    ____________________________________________________________
+    Inventory saved. 
+    Thank you for using MediStock, have a nice day!`
+    ____________________________________________________________
+    ```
 
 ## Saving the Data
 -- to be added--
@@ -131,5 +139,6 @@ The following table summarizes the available commands:
 | **ADD BATCH OF ITEMS** | `batch n/NAME q/QUANTITY d/EXPIRY_DATE` | `batch n/Vyvanse q/200 d/2028-06-07` |
 | **WITHDRAW ITEMS**     | `wtd <PRODUCT_NAME>  q/<QUANTITY>`      | `wtd n/Vyvanse 70mg q/50`            |
 | **QUIT**               | `exit` or `quit`                        | `exit`                               |
-> **EXPIRY_DATE must** be formatted as **YYYY-MM-DD**.
+
+> **EXPIRY_DATE must** be formatted as **YYYY-MM-DD**. <br>
 > **Dosage** should be included in **NAME**. *(if applicable)*
