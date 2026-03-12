@@ -11,8 +11,9 @@ import java.util.Scanner;
  */
 public class Ui {
 
-    public static final String EXIT_MESSAGE = "Thank you for using medistock!";
-    public static final String WELCOME_MESSAGE = "Welcome to medistock";
+    private static final String EXIT_MESSAGE =
+            "Inventory saved\nThank you for using MediStock, have a nice day!";
+    private static final String WELCOME_MESSAGE = "Welcome to medistock";
     private final Scanner scanner;
 
     /**
@@ -52,11 +53,6 @@ public class Ui {
         printLine();
     }
 
-    public static void exit() {
-        printLine();
-        System.out.println(EXIT_MESSAGE);
-        printLine();
-    }
 
     /**
      * Prints an error message.
@@ -69,10 +65,9 @@ public class Ui {
         printLine();
     }
 
-    public void printExit() {
+    public void printExitMessage() {
         printLine();
-        System.out.println("Inventory saved");
-        System.out.println("Thank you for using MediStock, have a nice day!");
+        System.out.println(EXIT_MESSAGE);
         printLine();
     }
 
