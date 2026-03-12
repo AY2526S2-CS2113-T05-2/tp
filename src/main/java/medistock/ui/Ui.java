@@ -24,14 +24,14 @@ public class Ui {
     }
 
     /**
-     * Reads the next command from the user. Returns the full string entered into the console.
+     * Reads the next command from the user. Returns the full string entered into
+     * the console.
      *
      * @return The user's input line.
      */
     public String getInput() {
         return scanner.nextLine();
     }
-
 
     /**
      * Reads a command from the user.
@@ -101,11 +101,11 @@ public class Ui {
     public static void printCreate(String name, String unit, int minimumThreshold) {
         printLine();
         System.out.println(String.format("Product created:" + name + " (" + unit + ")\n" + "Minimum threshold: "
-                        + minimumThreshold));
+                + minimumThreshold));
         printLine();
     }
 
-    public static void printInventory(Inventory inventory){
+    public static void printInventory(Inventory inventory) {
         System.out.println("Current Pharmaceutical Inventory:");
         printLine();
 
@@ -113,8 +113,9 @@ public class Ui {
     }
 
     public static void printItemDetails(InventoryItem item) {
-        String name = item.getName();
-        System.out.println(name);
+        String unit = item.getUnit();
+        int quantity = item.getQuantity();
+        System.out.println(quantity + " " + unit);
     }
 
     public static void printBatch(int quantity, InventoryItem item, LocalDate date) {
@@ -122,6 +123,14 @@ public class Ui {
                 " the inventory!%n", quantity, item.getName(), date);
         printLine();
         System.out.printf("Stock of %s is now:", item.getName());
+        printItemDetails(item);
+        printLine();
+    }
+
+    public static void printWithdraw(int quantity, InventoryItem item) {
+        System.out.printf("Withdrawn %d %s from inventory.%n", quantity, item.getName());
+        printLine();
+        System.out.printf("Stock of %s is now: ", item.getName());
         printItemDetails(item);
         printLine();
     }
