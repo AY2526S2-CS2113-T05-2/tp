@@ -14,10 +14,10 @@ import java.util.logging.Level;
  * duplicates and ensure consistent lookups.
  */
 public class Inventory {
-    private static final Logger logger = Logger.getLogger(Inventory.class.getName());
     public static final String ASSERT_NAME_NOT_NULL =
             "Name should not be null.";
-
+    private static final Logger logger = Logger.getLogger(Inventory.class.getName());
+    
     private final Map<String, InventoryItem> items;
 
     public Inventory() {
