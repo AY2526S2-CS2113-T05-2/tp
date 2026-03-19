@@ -12,6 +12,9 @@ import java.util.Map;
  * duplicates and ensure consistent lookups.
  */
 public class Inventory {
+    public static final String ASSERT_NAME_NOT_NULL =
+            "Name should not be null.";
+
     private final Map<String, InventoryItem> items;
 
     public Inventory() {
@@ -25,6 +28,8 @@ public class Inventory {
      * @throws MediStockException If an item with the same name already exists.
      */
     public void addItem(InventoryItem item) throws MediStockException {
+        assert item != null: "Item must not be null.";
+        assert item.getName() != null: ASSERT_NAME_NOT_NULL;
         String key = normalizeName(item.getName());
         if (items.containsKey(key)) {
             throw new MediStockException("Product already exists: " + item.getName());
@@ -50,6 +55,7 @@ public class Inventory {
      * @throws MediStockException If the item does not exist.
      */
     public InventoryItem getItem(String name) throws MediStockException {
+        assert name != null: ASSERT_NAME_NOT_NULL;
         String key = normalizeName(name);
         if (!items.containsKey(key)) {
             throw new MediStockException("Product not found: " + name);
@@ -109,6 +115,7 @@ public class Inventory {
     }
 
     private String normalizeName(String name) {
+        assert name != null : ASSERT_NAME_NOT_NULL;
         return name.trim().toLowerCase();
     }
 }
