@@ -5,7 +5,6 @@ import medistock.inventory.Inventory;
 import medistock.inventory.InventoryItem;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
