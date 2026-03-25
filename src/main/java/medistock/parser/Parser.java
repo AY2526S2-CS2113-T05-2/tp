@@ -9,6 +9,7 @@ import medistock.command.ExitCommand;
 import medistock.command.FindCommand;
 import medistock.command.HelpCommand;
 import medistock.command.ListCommand;
+import medistock.command.ListExpiredCommand;
 import medistock.command.WithdrawCommand;
 import medistock.exception.MediStockException;
 import medistock.ui.Ui;
@@ -33,6 +34,8 @@ public class Parser {
             return prepareDeleteName(text);
         } else if (text.startsWith("delete i/")) {
             return prepareDeleteIndex(text);
+        } else if (text.equals("list-expired")) {
+            return new ListExpiredCommand();
         } else if (text.equals("list")) {
             return new ListCommand();
         } else if (text.startsWith("exit") || text.startsWith("quit")) {
