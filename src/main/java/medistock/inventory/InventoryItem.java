@@ -201,6 +201,14 @@ public class InventoryItem {
         return getQuantity() < minimumThreshold;
     }
 
+    public int removeExpiredBatches() {
+        sortAndMarkExpiredBatches();
+        List<Batch> expired = getExpiredBatches();
+        int count = expired.size();
+        batches.removeAll(expired);
+        return count;
+    }
+
     public List<Batch> getExpiredBatches() {
         List<Batch> expired = new ArrayList<>();
         for (Batch batch : batches) {
