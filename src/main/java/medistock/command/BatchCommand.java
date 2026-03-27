@@ -31,7 +31,8 @@ public class BatchCommand extends Command {
         }
 
         InventoryItem item = inventory.getItem(name);
-        int batchNumber = item.getBatchQuantity() + 1;
+        item.sortAndMarkExpiredBatches();
+        int batchNumber = item.getTotalBatchQuantity() + 1;
         Batch newBatch = new Batch(batchNumber, quantity, expiryDate);
         item.addBatch(newBatch);
         ui.printBatch(inventory, item, quantity, expiryDate);

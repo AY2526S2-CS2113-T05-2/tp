@@ -70,6 +70,10 @@ public class InventoryItem {
         return count;
     }
 
+    public int getTotalBatchQuantity() {
+        return batches.size();
+    }
+
     /**
      * Returns the earliest expiry date
      *
