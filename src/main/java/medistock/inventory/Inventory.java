@@ -2,6 +2,7 @@ package medistock.inventory;
 
 import medistock.exception.MediStockException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -155,6 +156,20 @@ public class Inventory {
      */
     public int getSize() {
         return items.size();
+    }
+
+    public List<InventoryItem> getActiveBatches() {
+        return new ArrayList<>(items.values());
+    }
+
+    public List<InventoryItem> getExpiredBatches() {
+        List<InventoryItem> expired = new ArrayList<>();
+        for (InventoryItem item : items.values()) {
+            if (!item.getExpiredBatches().isEmpty()) {
+                expired.add(item);
+            }
+        }
+        return expired;
     }
 
     /**
