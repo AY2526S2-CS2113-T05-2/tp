@@ -133,6 +133,7 @@ public class Inventory {
             if (i == index - 1) {
                 deletedItem = items.get(key);
                 items.remove(key);
+                logger.log(Level.INFO, "Deleted item: " + key);
                 return deletedItem;
             }
             i++;

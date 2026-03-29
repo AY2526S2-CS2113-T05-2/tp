@@ -2,13 +2,17 @@ package medistock;
 
 import medistock.command.Command;
 import medistock.exception.MediStockException;
+import medistock.historystorage.HistoryStorage;
 import medistock.inventory.Inventory;
 import medistock.logscentre.LogsCentre;
 import medistock.parser.Parser;
 import medistock.storage.Storage;
 import medistock.ui.Ui;
 
+import java.io.IOException;
 import java.nio.file.Path;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Main class for the MediStock application.
@@ -19,12 +23,22 @@ public class Medistock {        // I think we need to change name of class and f
     private Inventory inventory;
     private Ui ui;
     private Storage storage;
+    private final HistoryStorage historyStorage;
+    private List<String> histories;
 
 
-    public Medistock(Path filepath) {
+    public Medistock(Path filepath, String historyFilepath) {
         this.ui = new Ui();
         this.storage = new Storage(filepath);
+        this.historyStorage = new HistoryStorage(historyFilepath);
         this.inventory = new Inventory();
+
+
+        try {
+            histories = historyStorage.load(new ArrayList<>());
+        } catch (Exception e) {
+            histories = new ArrayList<>();
+        }
     }
 
     /**
@@ -39,13 +53,18 @@ public class Medistock {        // I think we need to change name of class and f
             try {
                 String input = ui.getInput();
                 Command command = Parser.parseCommand(input);
-                command.execute(inventory, ui);
-                if (input.equals("exit")) {
+                command.execute(inventory, ui, histories);
+                if (input.equals("exit") || input.equals("quit")) {
                     isRunning = false;
                 }
             } catch (MediStockException e) {
                 ui.printError(e.getMessage());
             }
+        }
+        try {
+            historyStorage.save(histories);
+        } catch (IOException e) {
+            System.out.println("Error saving history.");
         }
         exit();
     }
@@ -63,7 +82,7 @@ public class Medistock {        // I think we need to change name of class and f
     public static void main(String[] args) {
         LogsCentre.initLogging();
 
-        Medistock mediStock = new Medistock(Path.of("./data/Inventory.txt"));
+        Medistock mediStock = new Medistock(Path.of("./data/Inventory.txt"), "./data/History.txt");
         mediStock.boot();
     }
 }

@@ -1,5 +1,7 @@
 package medistock.command;
 
+import java.util.List;
+
 import medistock.exception.MediStockException;
 import medistock.inventory.Inventory;
 import medistock.inventory.InventoryItem;
@@ -17,7 +19,7 @@ public class RemoveExpiredCommand extends Command {
     }
 
     @Override
-    public void execute(Inventory inventory, Ui ui)
+    public void execute(Inventory inventory, Ui ui, List<String> histories)
             throws MediStockException {
         if (name == null) {
             int count = inventory.removeAllExpiredBatches();

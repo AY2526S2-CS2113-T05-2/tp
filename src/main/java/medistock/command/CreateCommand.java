@@ -1,5 +1,7 @@
 package medistock.command;
 
+import java.util.List;
+
 import medistock.exception.MediStockException;
 import medistock.inventory.Inventory;
 import medistock.inventory.InventoryItem;
@@ -20,9 +22,14 @@ public class CreateCommand extends Command {
     }
 
     @Override
-    public void execute(Inventory inventory, Ui ui) throws MediStockException {
+    public void execute(Inventory inventory, Ui ui, List<String> histories) throws MediStockException {
         InventoryItem item = new InventoryItem(name, unit, minimumThreshold);
         inventory.addItem(item);
         ui.printCreate(name,unit,minimumThreshold);
+        histories.add(toHistoryString());
+    }
+
+    public String toHistoryString() {
+        return "Created '" + name + "' of '" + unit + "' unit with minimum threshold of " + minimumThreshold + ".";
     }
 }

@@ -34,7 +34,7 @@ public class FindCommand extends Command {
      * @throws MediStockException If an error occurs during execution.
      */
     @Override
-    public void execute(Inventory inventory, Ui ui) throws MediStockException {
+    public void execute(Inventory inventory, Ui ui, List<String> histories) throws MediStockException {
         logger.log(Level.INFO, "Executing find command with keyword: " + keyword);
         
         List<InventoryItem> matchedItems = inventory.findItem(keyword);
