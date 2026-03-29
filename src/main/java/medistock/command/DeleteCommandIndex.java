@@ -7,7 +7,7 @@ import medistock.inventory.Inventory;
 import medistock.inventory.InventoryItem;
 import medistock.ui.Ui;
 
-public class DeleteCommandIndex extends String {
+public class DeleteCommandIndex extends Command {
     private final int index;
 
     public DeleteCommandIndex(int index) {
@@ -15,13 +15,13 @@ public class DeleteCommandIndex extends String {
     }
 
     @Override
-    public void execute(Inventory inventory, Ui ui, List<java.lang.String> histories) throws MediStockException {
+    public void execute(Inventory inventory, Ui ui, List<String> histories) throws MediStockException {
         InventoryItem deletedItem = inventory.deleteItem(index);
         ui.printDelete(deletedItem);
         histories.add(toHistoryString(deletedItem.getName()));
     }
 
-    public java.lang.String toHistoryString(java.lang.String name) {
+    public String toHistoryString(String name) {
         return "Deleted '" + name + "'.";
     }
 }

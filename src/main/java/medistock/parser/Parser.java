@@ -1,8 +1,8 @@
 package medistock.parser;
 
+import medistock.command.Command;
 import medistock.command.BatchCommand;
 import medistock.command.HistoryCommand;
-import medistock.command.String;
 import medistock.command.CreateCommand;
 import medistock.command.DeleteCommandIndex;
 import medistock.command.DeleteCommandName;
@@ -17,8 +17,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 public class Parser {
-    public static String parseCommand(java.lang.String input) throws MediStockException {
-        java.lang.String text = input.trim();
+    public static Command parseCommand(String input) throws MediStockException {
+        String text = input.trim();
 
         if (text.startsWith("create ")) {
             return prepareCreate(text);
@@ -82,7 +82,7 @@ public class Parser {
      * @throws MediStockException If the format is invalid or parameters are out of
      *                            order.
      */
-    public static String prepareBatch(java.lang.String text) throws MediStockException {
+    public static Command prepareBatch(java.lang.String text) throws MediStockException {
         int nameIndex = text.indexOf("n/");
         int quantIndex = text.indexOf("q/");
         int expiryIndex = text.indexOf("d/");
@@ -127,7 +127,7 @@ public class Parser {
      * @throws MediStockException If parameters are missing, empty, or incorrectly
      *                            formatted.
      */
-    private static String prepareCreate(java.lang.String text) throws MediStockException {
+    private static Command prepareCreate(java.lang.String text) throws MediStockException {
         int nameIndex = text.indexOf("n/");
         int unitIndex = text.indexOf("u/");
         int minIndex = text.indexOf("min/");
@@ -170,7 +170,7 @@ public class Parser {
      * @throws MediStockException If the format is invalid or parameters are out of
      *                            order.
      */
-    private static String prepareWithdraw(java.lang.String text) throws MediStockException {
+    private static Command prepareWithdraw(java.lang.String text) throws MediStockException {
         int nameIndex = text.indexOf("n/");
         int quantIndex = text.indexOf("q/");
 
@@ -202,7 +202,7 @@ public class Parser {
         return new WithdrawCommand(name, quant);
     }
 
-    private static String prepareDeleteName(java.lang.String text) throws MediStockException {
+    private static Command prepareDeleteName(java.lang.String text) throws MediStockException {
         int nameIndex = text.indexOf("n/");
 
         if (nameIndex == -1) {
@@ -218,7 +218,7 @@ public class Parser {
         return new DeleteCommandName(name);
     }
 
-    private static String prepareDeleteIndex(java.lang.String text) throws MediStockException {
+    private static Command prepareDeleteIndex(java.lang.String text) throws MediStockException {
         int nameIndex = text.indexOf("i/");
 
         if (nameIndex == -1) {

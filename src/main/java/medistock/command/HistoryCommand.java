@@ -6,7 +6,7 @@ import medistock.exception.MediStockException;
 import medistock.inventory.Inventory;
 import medistock.ui.Ui;
 
-public class HistoryCommand extends String {
+public class HistoryCommand extends Command {
 
     /**
      * Executes the list command by displaying all inventory items.
@@ -17,7 +17,7 @@ public class HistoryCommand extends String {
      */
 
     @Override
-    public void execute(Inventory inventory, Ui ui, List<java.lang.String> histories) throws MediStockException {
+    public void execute(Inventory inventory, Ui ui, List<String> histories) throws MediStockException {
         ui.showHistory(histories);
     }
 }

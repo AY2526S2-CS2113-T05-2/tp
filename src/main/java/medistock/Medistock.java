@@ -1,6 +1,6 @@
 package medistock;
 
-import medistock.command.String;
+import medistock.command.Command;
 import medistock.exception.MediStockException;
 import medistock.historystorage.HistoryStorage;
 import medistock.inventory.Inventory;
@@ -21,10 +21,10 @@ public class Medistock {        // I think we need to change name of class and f
     private Ui ui;
     private Storage storage;
     private final HistoryStorage historyStorage;
-    private List<java.lang.String> histories;
+    private List<String> histories;
 
 
-    public Medistock(Path filepath, java.lang.String historyFilepath) {
+    public Medistock(Path filepath, String historyFilepath) {
         this.ui = new Ui();
         this.storage = new Storage(filepath);
         this.historyStorage = new HistoryStorage(historyFilepath);
@@ -48,8 +48,8 @@ public class Medistock {        // I think we need to change name of class and f
 
         while (isRunning) {
             try {
-                java.lang.String input = ui.getInput();
-                String command = Parser.parseCommand(input);
+                String input = ui.getInput();
+                Command command = Parser.parseCommand(input);
                 command.execute(inventory, ui, histories);
                 if (input.equals("exit") || input.equals("quit")) {
                     isRunning = false;
@@ -76,7 +76,7 @@ public class Medistock {        // I think we need to change name of class and f
     /**
      * Main entry-point for the java.medistick.Medistock application.
      */
-    public static void main(java.lang.String[] args) {
+    public static void main(String[] args) {
         LogsCentre.initLogging();
 
         Medistock mediStock = new Medistock(Path.of("./data/Inventory.txt"), "./data/History.txt");

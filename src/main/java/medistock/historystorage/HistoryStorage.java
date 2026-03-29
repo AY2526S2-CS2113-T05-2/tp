@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.lang.String;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.List;
@@ -12,14 +11,14 @@ import java.util.List;
 import medistock.command.*;
 
 public class HistoryStorage {
-    private final java.lang.String filePath;
+    private final String filePath;
     private final File file;
 
     /**
      * Represents the storage of the history of commands.
      * @param filePath A relative path to the text file that stores the history of commands.
      */
-    public HistoryStorage(java.lang.String filePath) {
+    public HistoryStorage(String filePath) {
         this.filePath = filePath;
         this.file = new File(filePath);
     }
@@ -31,7 +30,7 @@ public class HistoryStorage {
      * @return Loaded History List.
      * @throws FileNotFoundException If the input text file does not exist.
      */
-    public List<java.lang.String> load(List<String> commands) throws IOException {
+    public List<String> load(List<String> commands) throws IOException {
         File file = new File(filePath);
 
         if (!file.exists()) {
@@ -39,7 +38,7 @@ public class HistoryStorage {
         }
 
         try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            java.lang.String cmd;
+            String cmd;
 
             while ((cmd = br.readLine()) != null) {
                 commands.add(cmd);
@@ -55,7 +54,7 @@ public class HistoryStorage {
      * @param commands History of commands.
      * @throws FileNotFoundException If error writing text file.
      */
-    public void save(List<java.lang.String> commands) throws IOException {
+    public void save(List<String> commands) throws IOException {
         if (!file.exists()) {
             File parent = file.getParentFile();
             if (parent != null && !parent.exists()) {
@@ -67,7 +66,7 @@ public class HistoryStorage {
             }
         }
         try (FileWriter fw = new FileWriter(filePath)) {
-            for (java.lang.String commandText : commands) {
+            for (String commandText : commands) {
                 fw.write(commandText + System.lineSeparator());
             }
         }
