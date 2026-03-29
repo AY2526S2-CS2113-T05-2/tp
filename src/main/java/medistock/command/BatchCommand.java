@@ -9,6 +9,9 @@ import medistock.ui.Ui;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * Command to add a new batch to an existing inventory item.
+ */
 public class BatchCommand extends Command {
     private final String name;
     private final int quantity;
@@ -25,11 +28,12 @@ public class BatchCommand extends Command {
 
         if (!inventory.hasItem(this.name)) {
             throw new MediStockException("Item '" + this.name + "' does not exist in inventory." +
-                            " Please add the item first.");
+                    " Please add the item first.");
         }
 
         InventoryItem item = inventory.getItem(name);
-        int batchNumber = item.getBatchQuantity() + 1;
+        item.sortAndMarkExpiredBatches();
+        int batchNumber = item.getTotalBatchQuantity() + 1;
         Batch newBatch = new Batch(batchNumber, quantity, expiryDate);
         item.addBatch(newBatch);
         ui.printBatch(inventory, item, quantity, expiryDate);

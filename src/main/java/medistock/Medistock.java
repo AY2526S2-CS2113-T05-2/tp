@@ -14,7 +14,10 @@ import java.nio.file.Path;
 import java.util.List;
 import java.util.ArrayList;
 
-
+/**
+ * Main class for the MediStock application.
+ * Manages the initialization and execution of the inventory management system.
+ */
 public class Medistock {        // I think we need to change name of class and file to MediStock
 
     private Inventory inventory;

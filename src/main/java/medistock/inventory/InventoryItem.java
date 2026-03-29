@@ -61,11 +61,17 @@ public class InventoryItem {
      * @return the quanity of batches
      */
     public int getBatchQuantity() {
-        if (batches.isEmpty()) {
-            return 0;
-        } else {
-            return batches.size();
+        int count = 0;
+        for (Batch batch : batches) {
+            if (!batch.isExpired()) {
+                count++;
+            }
         }
+        return count;
+    }
+
+    public int getTotalBatchQuantity() {
+        return batches.size();
     }
 
     /**
@@ -74,15 +80,16 @@ public class InventoryItem {
      * @return the earliest expiry date
      */
     public LocalDate getEarliestExpiry() throws MediStockException {
-        if (batches.isEmpty()) {
-            throw new MediStockException("There is no recorded stock for this item");
-        }
-
-        LocalDate earliestDate = batches.get(0).getExpiryDate();
+        LocalDate earliestDate = null;
         for (Batch batch : batches) {
-            if (earliestDate.isBefore(batch.getExpiryDate())) {
-                earliestDate = batch.getExpiryDate();
+            if (!batch.isExpired()) {
+                if (earliestDate == null || batch.getExpiryDate().isBefore(earliestDate)) {
+                    earliestDate = batch.getExpiryDate();
+                }
             }
+        }
+        if (earliestDate == null) {
+            throw new MediStockException("There is no recorded stock for this item");
         }
         return earliestDate;
     }
@@ -93,11 +100,11 @@ public class InventoryItem {
      */
     public int getQuantity() {
         int totalQuantity = 0;
-
         for (Batch batch : batches) {
-            totalQuantity += batch.getQuantity();
+            if (!batch.isExpired()) {
+                totalQuantity += batch.getQuantity();
+            }
         }
-
         return totalQuantity;
     }
 
@@ -133,22 +140,27 @@ public class InventoryItem {
      *                            is less than the requested amount.
      */
     public void withdraw(int quantity) throws MediStockException {
-        sortAndRemoveExpiredBatches();
+        sortAndMarkExpiredBatches();
 
-        // Check if enough stock remains after removing expired batches
+        // Check if enough stock remains after marking expired batches
         if (getQuantity() < quantity) {
             throw new MediStockException("Insufficient stock for " + name
                     + ". Available: " + getQuantity() + ", Requested: " + quantity);
         }
 
-        // Deduct from batches in order (earliest expiry first)
+        // Deduct from non-expired batches in order (earliest expiry first)
         int remaining = quantity;
-        while (remaining > 0) {
-            Batch batch = batches.get(0);
+        int i = 0;
+        while (remaining > 0 && i < batches.size()) {
+            Batch batch = batches.get(i);
+            if (batch.isExpired()) {
+                i++;
+                continue;
+            }
             int available = batch.getQuantity();
             if (available <= remaining) {
                 remaining -= available;
-                batches.remove(0);
+                batches.remove(i);
             } else {
                 batch.reduceQuantity(remaining);
                 remaining = 0;
@@ -161,22 +173,21 @@ public class InventoryItem {
      * batches.
      * A batch is considered expired if its expiry date is not after today.
      */
-    private void sortAndRemoveExpiredBatches() {
+    public void sortAndMarkExpiredBatches() {
         LocalDate today = LocalDate.now();
 
         // Earliest first
         batches.sort(Comparator.comparing(Batch::getExpiryDate));
 
-        // Remove all expired batches
-        int i = 0;
-        while (i < batches.size()) {
-            if (batches.get(i).getExpiryDate().isBefore(today)) {
+        // Mark and warn about all expired batches
+        for (Batch batch : batches) {
+            if (batch.getExpiryDate().isBefore(today)) {
+                if (!batch.isExpired()) {
+                    batch.markExpired();
+                }
                 System.out.println("Please remove expired batch "
-                        + batches.get(i).getBatchNumber() + " (expired: "
-                        + batches.get(i).getExpiryDate() + ")");
-                batches.remove(i);
-            } else {
-                i++;
+                        + batch.getBatchNumber() + " (expired: "
+                        + batch.getExpiryDate() + ")");
             }
         }
     }
@@ -188,6 +199,34 @@ public class InventoryItem {
      */
     public boolean isLowStock() {
         return getQuantity() < minimumThreshold;
+    }
+
+    public int removeExpiredBatches() {
+        sortAndMarkExpiredBatches();
+        List<Batch> expired = getExpiredBatches();
+        int count = expired.size();
+        batches.removeAll(expired);
+        return count;
+    }
+
+    public List<Batch> getExpiredBatches() {
+        List<Batch> expired = new ArrayList<>();
+        for (Batch batch : batches) {
+            if (batch.isExpired()) {
+                expired.add(batch);
+            }
+        }
+        return expired;
+    }
+
+    public List<Batch> getActiveBatches() {
+        List<Batch> active = new ArrayList<>();
+        for (Batch batch : batches) {
+            if (!batch.isExpired()) {
+                active.add(batch);
+            }
+        }
+        return active;
     }
 
     public int getThreshold() {

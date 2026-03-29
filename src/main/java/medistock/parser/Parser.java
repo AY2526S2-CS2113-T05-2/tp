@@ -1,21 +1,25 @@
 package medistock.parser;
 
-import medistock.command.Command;
 import medistock.command.BatchCommand;
-import medistock.command.HistoryCommand;
+import medistock.command.Command;
 import medistock.command.CreateCommand;
 import medistock.command.DeleteCommandIndex;
 import medistock.command.DeleteCommandName;
-import medistock.command.HelpCommand;
 import medistock.command.ExitCommand;
-import medistock.command.WithdrawCommand;
+import medistock.command.FindCommand;
+import medistock.command.HelpCommand;
 import medistock.command.ListCommand;
+import medistock.command.RemoveExpiredCommand;
+import medistock.command.WithdrawCommand;
 import medistock.exception.MediStockException;
 import medistock.ui.Ui;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Parses user input and converts it into executable commands.
+ */
 public class Parser {
     public static Command parseCommand(String input) throws MediStockException {
         String text = input.trim();
@@ -34,10 +38,15 @@ public class Parser {
             return new ListCommand();
         } else if (text.startsWith("exit") || text.startsWith("quit")) {
             return new ExitCommand();
+        } else if (text.equals("find") || input.startsWith("find ")) {
+            String keyword = parseFind(text);
+            return new FindCommand(keyword);
         } else if (text.equals("help")) {
             return new HelpCommand();
-        } else if (text.equals("history")) {
-            return new HistoryCommand();
+        } else if (text.equals("remove-expired")) {
+            return new RemoveExpiredCommand();
+        } else if (text.startsWith("remove-expired n/")) {
+            return prepareRemoveExpired(text);
         } else {
             throw new MediStockException("Unknown command.");
         }
@@ -55,7 +64,7 @@ public class Parser {
      * @param index2 Optional: The starting index of the next parameter prefix.
      * @return The trimmed string value of the argument.
      */
-    private static java.lang.String getArgument(java.lang.String text, int index1, int... index2) {
+    private static String getArgument(String text, int index1, int... index2) {
         if (index2.length > 0) {
             return text.substring(index1 + 2, index2[0]).trim();
         } else {
@@ -64,13 +73,13 @@ public class Parser {
     }
 
     /**
-     * Specifically extracts the value for the "min/" parameter.
+     * Returns the value of the "min/" parameter from the input string.
      *
-     * @param text     The full input string.
-     * @param minIndex The starting index of the "min/" prefix.
-     * @return The trimmed string value of the minimum threshold.
+     * @param text The input string containing parameters.
+     * @param minIndex The index where the "min/" prefix starts.
+     * @return The trimmed minimum threshold value.
      */
-    private static java.lang.String getMinimum(java.lang.String text, int minIndex) {
+    private static String getMinimum(String text, int minIndex) {
         return text.substring(minIndex + 4).trim();
     }
 
@@ -82,7 +91,7 @@ public class Parser {
      * @throws MediStockException If the format is invalid or parameters are out of
      *                            order.
      */
-    public static Command prepareBatch(java.lang.String text) throws MediStockException {
+    public static Command prepareBatch(String text) throws MediStockException {
         int nameIndex = text.indexOf("n/");
         int quantIndex = text.indexOf("q/");
         int expiryIndex = text.indexOf("d/");
@@ -96,7 +105,7 @@ public class Parser {
                             Ui.BATCH_FORMAT);
         }
 
-        java.lang.String name = getArgument(text, nameIndex, quantIndex).trim();
+        String name = getArgument(text, nameIndex, quantIndex).trim();
 
         int quant;
         try {
@@ -127,7 +136,7 @@ public class Parser {
      * @throws MediStockException If parameters are missing, empty, or incorrectly
      *                            formatted.
      */
-    private static Command prepareCreate(java.lang.String text) throws MediStockException {
+    private static Command prepareCreate(String text) throws MediStockException {
         int nameIndex = text.indexOf("n/");
         int unitIndex = text.indexOf("u/");
         int minIndex = text.indexOf("min/");
@@ -140,9 +149,9 @@ public class Parser {
             throw new MediStockException("Use create format: " + Ui.CREATE_FORMAT);
         }
 
-        java.lang.String name = getArgument(text, nameIndex, unitIndex);
-        java.lang.String unit = getArgument(text, unitIndex, minIndex);
-        java.lang.String minText = getMinimum(text, minIndex);
+        String name = getArgument(text, nameIndex, unitIndex);
+        String unit = getArgument(text, unitIndex, minIndex);
+        String minText = getMinimum(text, minIndex);
 
         if (name.isEmpty() || unit.isEmpty() || minText.isEmpty()) {
             throw new MediStockException("Name, unit, and minimum threshold must not be empty.");
@@ -170,46 +179,46 @@ public class Parser {
      * @throws MediStockException If the format is invalid or parameters are out of
      *                            order.
      */
-    private static Command prepareWithdraw(java.lang.String text) throws MediStockException {
+    private static Command prepareWithdraw(String text) throws MediStockException {
         int nameIndex = text.indexOf("n/");
-        int quantIndex = text.indexOf("q/");
+        int quantityIndex = text.indexOf("q/");
 
-        if (nameIndex == -1 || quantIndex == -1) {
+        if (nameIndex == -1 || quantityIndex == -1) {
             throw new MediStockException("Invalid withdraw format. " + Ui.WITHDRAW_FORMAT);
         }
-        if (!(nameIndex < quantIndex)) {
+        if (!(nameIndex < quantityIndex)) {
             throw new MediStockException("Use correct format: " + Ui.WITHDRAW_FORMAT);
         }
 
-        java.lang.String name = getArgument(text, nameIndex, quantIndex);
-        java.lang.String quantText = getArgument(text, quantIndex);
+        String name = getArgument(text, nameIndex, quantityIndex);
+        String quantityText = getArgument(text, quantityIndex);
 
-        if (name.isEmpty() || quantText.isEmpty()) {
+        if (name.isEmpty() || quantityText.isEmpty()) {
             throw new MediStockException("Name and quantity must not be empty.");
         }
 
-        int quant;
+        int quantity;
         try {
-            quant = Integer.parseInt(quantText);
+            quantity = Integer.parseInt(quantityText);
         } catch (NumberFormatException e) {
             throw new MediStockException("Quantity must be a valid number.");
         }
 
-        if (quant <= 0) {
+        if (quantity <= 0) {
             throw new MediStockException("Quantity must be greater than 0.");
         }
 
-        return new WithdrawCommand(name, quant);
+        return new WithdrawCommand(name, quantity);
     }
 
-    private static Command prepareDeleteName(java.lang.String text) throws MediStockException {
+    private static Command prepareDeleteName(String text) throws MediStockException {
         int nameIndex = text.indexOf("n/");
 
         if (nameIndex == -1) {
             throw new MediStockException("Invalid delete format. " + Ui.DELETE_FORMAT);
         }
 
-        java.lang.String name = getArgument(text, nameIndex);
+        String name = getArgument(text, nameIndex);
 
         if (name.isEmpty()) {
             throw new MediStockException("Name must not be empty.");
@@ -218,14 +227,14 @@ public class Parser {
         return new DeleteCommandName(name);
     }
 
-    private static Command prepareDeleteIndex(java.lang.String text) throws MediStockException {
+    private static Command prepareDeleteIndex(String text) throws MediStockException {
         int nameIndex = text.indexOf("i/");
 
         if (nameIndex == -1) {
             throw new MediStockException("Invalid delete format. " + Ui.DELETE_FORMAT);
         }
 
-        java.lang.String indexText = getArgument(text, nameIndex);
+        String indexText = getArgument(text, nameIndex);
         int index;
 
         try {
@@ -234,11 +243,43 @@ public class Parser {
             throw new MediStockException("Index must be a valid number.");
         }
 
-        if (index <= 0 ) {
+        if (index <= 0) {
             throw new MediStockException("Invalid index! Please enter a valid index.");
         }
 
         return new DeleteCommandIndex(index);
     }
 
+    /**
+     * Parses a find command and extracts the keyword.
+     *
+     * @param text The full find command string.
+     * @return The keyword string.
+     * @throws MediStockException If the keyword is missing.
+     */
+    private static String parseFind(String text) throws MediStockException {
+        String[] parts = text.split(" ", 2);
+        String keyword =parts.length < 2 ? "" : parts[1].trim();
+
+        if (keyword.isEmpty()) {
+            throw new MediStockException(Ui.ERROR_MISSING_KEYWORD);
+        }
+        return keyword;
+    }
+
+    private static Command prepareRemoveExpired(String text)
+            throws MediStockException {
+        int nameIndex = text.indexOf("n/");
+        if (nameIndex == -1) {
+            throw new MediStockException(
+                    "Invalid format. "
+                    + Ui.REMOVE_EXPIRED_FORMAT);
+        }
+        String name = getArgument(text, nameIndex);
+        if (name.isEmpty()) {
+            throw new MediStockException(
+                    "Name must not be empty.");
+        }
+        return new RemoveExpiredCommand(name);
+    }
 }
