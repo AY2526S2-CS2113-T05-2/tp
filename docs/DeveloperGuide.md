@@ -48,51 +48,69 @@ This developer guide was inspired by
 
 ### Feature: Delete Item by Name
 
-### Feature: Delete Item by Index
+![DeleteCommandName_SequenceDiagram](diagrams/DeleteCommandName_SequenceDiagram.png)
 
-### Feature: List Inventory
+**Purpose:** Delete an entire type of item from the inventory using the item's name.
 
-![ListCommand_ClassDiagram](diagrams/ListCommand_ClassDiagram.png)
-![ListCommand_SequenceDiagram](diagrams/ListCommand_SequenceDiagram.png)
-
-**Purpose:** Display all inventory items maintained in memory, separated into active and expired batches.
-
-**Command word:** `list`
+**Command word:** `delete`
 
 **Format:**
 ```
-list
+delete n/<name>
 ```
 
-Prints a comprehensive view of the entire pharmaceutical inventory, divided into two sections:
-1. Active batches (non-expired items)
-2. Expired batches (items past expiry date)
+Finds the desired item using the input name given by the user and removes it from the inventory.
 
-Each item displays:
-- Index number (1-based enumeration)
-- Item name and minimum threshold
-- All batches with batch number, quantity, unit, and expiry date
-- Total active quantity
-- Stock status (Critical/Healthy)
-
-If the inventory is empty, prints "Your inventory is empty."
+If the name of the item does not match any of the items in the inventory, prints "Product not found".
 
 **Behaviour:**
-1. Checks if inventory size is 0; if so, displays empty message
-2. Iterates through `inventory.getActiveBatches()` and prints each item via `printActiveItemDetails()`
-3. Iterates through `inventory.getExpiredBatches()` and prints each item via `printExpiredItemDetails()`
-4. For each item, calls `item.sortAndMarkExpiredBatches()` to ensure batches are properly categorized
-5. Displays batch-level details including batch number, quantity, unit, and expiry date
+1. Parses the user input to get name of desired item.
+2. Calls `items.containsKey(<name>)` to check if an item of the given name exists in the inventory.
+3. If it exists, retrieve the corresponding InventoryItem with that name and remove it from the inventory.
+4. For the deleted item, calls `ui.printDelete(deletedItem)` to print the deleted item.
+5. Inform the user that the item has been deleted successfully.
 
 **Failure cases & messages:**
-- None (arguments are ignored)
-- If inventory is empty: "Your inventory is empty."
-- If no active batches: "No active batches found."
-- If no expired batches: "No expired batches found."
+- If name does not exist in inventory: "Product not found: "
+- If input format is invalid: "Invalid delete format. Format: delete 'n/NAME'"
 
 **Logging:**
-- INFO on command entry/exit
-- FINE for batch iteration
+- INFO on command entry/exit and deleted item.
+
+### Feature: Delete Item by Index
+
+![DeleteCommandIndex_SequenceDiagram](diagrams/DeleteCommandIndex_SequenceDiagram.png)
+
+**Purpose:** Delete an entire type of item from the inventory using the item's index in the inventory.
+
+**Command word:** `delete`
+
+**Format:**
+```
+delete i/<index>
+```
+
+Iterate through the inventory to obtain the name of the item at the index specified by the user. Finds the desired item 
+using the obtained name and removes it from the inventory.
+
+If the index is out of bounds, prints "Index entered out of bounds! Valid indices: ". If the index is invalid 
+(ie not a number), prints "Index must be a valid number."
+
+**Behaviour:**
+1. Parses the user input to get the index.
+2. Ensures that the input index is a positive integer that is within the size of the inventory.
+3. Iterates through the inventory to retrieve the key of item at the index.
+4. Retrieve the corresponding InventoryItem with the key and remove it from the inventory.
+5. For the deleted item, calls `ui.printDelete(deletedItem)` to print the deleted item.
+6. Inform the user that the item has been deleted successfully.
+
+**Failure cases & messages:**
+- If index out of bounds: "Index entered out of bounds! Valid indices: "
+- If input format is invalid: "Invalid delete format. Format: delete 'i/INDEX'"
+- If index is not an integer: "Index must be a valid number."
+
+**Logging:**
+- INFO on command entry/exit and deleted item.
 
 ### Feature: Find Item
 
