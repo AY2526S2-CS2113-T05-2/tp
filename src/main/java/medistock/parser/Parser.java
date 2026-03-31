@@ -27,6 +27,8 @@ public class Parser {
 
         if (text.startsWith("create ")) {
             return prepareCreate(text);
+        } else if (text.startsWith("edit ")) {
+            return prepareEdit(text);
         } else if (text.startsWith("batch")) {
             return prepareBatch(text);
         } else if (text.startsWith("withdraw")) {
@@ -171,6 +173,10 @@ public class Parser {
             throw new MediStockException("Minimum threshold must be greater than 0.");
         }
         return new CreateCommand(name, unit, min);
+    }
+
+    private static Command prepareEdit(String text) throws MediStockException {
+        throw new MediStockException("Invalid edit format. " + Ui.EDIT_FORMAT);
     }
 
     /**
