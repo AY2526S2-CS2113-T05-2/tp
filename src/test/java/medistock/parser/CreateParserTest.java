@@ -49,4 +49,44 @@ public class CreateParserTest {
         assertThrows(MediStockException.class,
                 () -> Parser.parseCommand(input));
     }
+
+    @Test
+    void parseCommand_emptyName_throwsException() {
+        String input = "create n/ u/Tablets min/10";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_emptyUnit_throwsException() {
+        String input = "create n/Aspirin u/ min/10";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_emptyMin_throwsException() {
+        String input = "create n/Aspirin u/Tablets min/";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_nonNumericMin_throwsException() {
+        String input = "create n/Aspirin u/Tablets min/abc";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_nonPositiveMin_throwsException() {
+        String input = "create n/Aspirin u/Tablets min/0";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
 }
