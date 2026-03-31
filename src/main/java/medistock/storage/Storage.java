@@ -1,18 +1,19 @@
 package medistock.storage;
 
 import medistock.exception.MediStockException;
+import medistock.inventory.Batch;
 import medistock.inventory.Inventory;
 import medistock.inventory.InventoryItem;
 
+import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import medistock.inventory.InventoryItem;
 
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.readAllLines;
@@ -39,23 +40,50 @@ public class Storage {
         fw.close();
     }
 
-    public void readFromFile(Inventory inventory, Storable data) throws IOException, MediStockException {
-        List<String> lines = readAllLines(filePath);
-        String itemName = "";
-        for (String line : lines) {
-            if ((line.startsWith("Item: ")) || (!itemName.equals(getItemName(line).trim()))) {
-                itemName = getItemName(line).trim();
-                inventory.addItem(parseInventoryItem(itemName));
-            } else if (line.startsWith("Batch")) {
+    public void saveToFile(Inventory inventory) throws IOException {
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath.toFile(), false))) {
 
+            for (InventoryItem item : inventory.getAllItems()) {
+                bw.write(item.toFileFormat());
+                bw.newLine();
+
+                for (Batch batch : item.getActiveBatches()) {
+                    bw.write(batch.toFileFormat());
+                    bw.newLine();
+                }
+                bw.newLine();
             }
-
         }
     }
 
-    public String isSameItem(String itemName) {
+    public void readFromFile(Inventory inventory) throws IOException, MediStockException {
+        List<String> lines = readAllLines(filePath);
+        String currentItemName = "";
+        for (String line : lines) {
+            if (line.isEmpty() || line.equals("[Batches]")) {
+                continue;
+            }
+            if (line.startsWith("Item:")) {
+                InventoryItem newItem = parseInventoryItem(line);
+                currentItemName = newItem.getName();
 
+                try {
+                    inventory.addItem(newItem);
+                } catch (MediStockException e) {
+                    throw new MediStockException("Corrupted save file! Duplicate item found: " + currentItemName);
+                }
+            }
+            else {
+                if (currentItemName.isEmpty()) {
+                    throw new MediStockException("Corrupted save file! Found a batch before any item was declared: " + line);
+                }
+                Batch newBatch = parseItemBatch(line);
+                inventory.addBatchToItem(currentItemName, newBatch);
+            }
+        }
     }
+
+
 
     public String getItemName(String line) {
         String[] name = splitLine(line);
@@ -70,24 +98,37 @@ public class Storage {
         String regex = "Item: (.*?) \\((.*?)\\) \\| (\\d+)";
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(line);
-        String name = matcher.group(1);
-        String unit = matcher.group(2);
-        int minThreshold = Integer.parseInt(matcher.group(3));
+
+        if (!matcher.find()) {
+            throw new MediStockException("Corrupted save file! Could not parse item from: " + line);
+        }
+
+        String name = matcher.group(1).trim();
+        String unit = matcher.group(2).trim();
+        int minThreshold = Integer.parseInt(matcher.group(3).trim());
+
         return new InventoryItem(name, unit, minThreshold);
     }
 
-    public InventoryItem parseItemBatch(String line) throws MediStockException {
-        String regex = "Batch (.*?) \\((.*?)\\) \\| (\\d+)";
+    public Batch parseItemBatch(String line) throws MediStockException {
+        String regex = "^(\\d+) \\| (.*?) \\| (\\d{4}-\\d{2}-\\d{2})$";
         Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(line);
-        String name = matcher.group(1);
-        String unit = matcher.group(2);
-        int minThreshold = Integer.parseInt(matcher.group(3));
-        return new InventoryItem(name, unit, minThreshold);
+        Matcher matcher = pattern.matcher(line.trim());
+
+        if (!matcher.matches()) {
+            throw new MediStockException("Corrupted save file! Batch line does not match format: " + line);
+        }
+
+        try {
+            int batchNumber = Integer.parseInt(matcher.group(1).trim());
+            int quantity = Integer.parseInt(matcher.group(2).trim());
+            String expiryDateString = matcher.group(3).trim();
+            LocalDate expiryDate = LocalDate.parse(expiryDateString);
+            return new Batch(batchNumber, quantity, expiryDate);
+        } catch (NumberFormatException e) {
+            throw new MediStockException("Corrupted save file! Number formatting error in batch: " + line);
+        }
     }
-
-
-    //TODO delete, withdraw
 
     public void createNewFile() {
         try {
@@ -101,10 +142,9 @@ public class Storage {
         }
     }
 
-    public void initializeInventory(Inventory inventory) throws IOException {
+    public void initializeInventory(Inventory inventory) throws IOException, MediStockException {
         if (exists(filePath)) {
-
-            readFromFile(inventory, Storable);
+            readFromFile(inventory);
         } else {
             createNewFile();
         }

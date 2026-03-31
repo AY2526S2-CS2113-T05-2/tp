@@ -1,5 +1,6 @@
 package medistock.command;
 
+import java.io.IOException;
 import java.util.List;
 
 import medistock.exception.MediStockException;
@@ -21,7 +22,7 @@ public class RemoveExpiredCommand extends Command {
 
     @Override
     public void execute(Inventory inventory, Ui ui, Storage storage, List<String> histories)
-            throws MediStockException {
+            throws MediStockException, IOException {
         if (name == null) {
             int count = inventory.removeAllExpiredBatches();
             ui.printRemoveExpired(count);
@@ -33,6 +34,7 @@ public class RemoveExpiredCommand extends Command {
             InventoryItem item = inventory.getItem(name);
             int count = item.removeExpiredBatches();
             ui.printRemoveExpired(name, count);
+            storage.saveToFile(inventory);
         }
     }
 }

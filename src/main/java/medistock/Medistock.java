@@ -45,7 +45,7 @@ public class Medistock {        // I think we need to change name of class and f
      * Starts the main application loop. Continuously reads user input, parses commands, and executes them
      * Does so, until an exit command is given.
      */
-    public void boot() throws IOException {
+    public void boot() throws IOException, MediStockException {
         ui.greet();
         storage.initializeInventory(inventory);
 
@@ -83,7 +83,7 @@ public class Medistock {        // I think we need to change name of class and f
     /**
      * Main entry-point for the java.medistick.Medistock application.
      */
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, MediStockException {
         LogsCentre.initLogging();
 
         Medistock mediStock = new Medistock(Path.of("./data/Inventory.txt"), "./data/History.txt");

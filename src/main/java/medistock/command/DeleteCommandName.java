@@ -1,5 +1,6 @@
 package medistock.command;
 
+import java.io.IOException;
 import java.util.List;
 
 import medistock.exception.MediStockException;
@@ -19,10 +20,12 @@ public class DeleteCommandName extends Command {
     }
 
     @Override
-    public void execute(Inventory inventory, Ui ui, Storage storage, List<String> histories) throws MediStockException {
+    public void execute(Inventory inventory, Ui ui, Storage storage, List<String> histories)
+                    throws MediStockException, IOException {
         InventoryItem deletedItem = inventory.deleteItem(name);
         ui.printDelete(deletedItem);
         histories.add(toHistoryString());
+        storage.saveToFile(inventory);
     }
 
     public String toHistoryString() {
