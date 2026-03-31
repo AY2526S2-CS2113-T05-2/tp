@@ -1,0 +1,67 @@
+@startuml
+title DeleteCommandIndex Sequence Diagram
+
+actor User
+participant ":Medistock" as App
+participant ":Ui" as Ui
+participant ":Parser" as Parser
+participant ":DeleteCommandIndex" as DeleteCommandIndex
+participant ":Inventory" as Inventory
+participant ":Map" as Map
+
+User -> App : run "delete i/<index>"
+activate App
+
+App -> Ui : getInput()
+activate Ui
+Ui --> App : input:String
+deactivate Ui
+
+App -> Parser : parseCommand(input:String)
+activate Parser
+
+create DeleteCommandIndex
+Parser -> DeleteCommandIndex : new DeleteCommandIndex(index:int)
+activate DeleteCommandIndex
+DeleteCommandIndex --> Parser : command:DeleteCommandIndex
+deactivate DeleteCommandIndex
+
+Parser --> App : command:DeleteCommandIndex
+deactivate Parser
+
+App -> DeleteCommandIndex : execute(inventory:Inventory, ui:Ui)
+activate DeleteCommandIndex
+
+DeleteCommandIndex -> Inventory : deleteItem(index:int)
+activate Inventory
+
+Inventory -> Map : keySet()
+activate Map
+Map --> Inventory : keys : Collection
+deactivate Map
+loop for key in keys
+    alt i == index - 1
+        Inventory -> Map : get(key:String)
+        activate Map
+        Map --> Inventory : deletedItem : InventoryItem
+        deactivate Map
+        Inventory -> Map : remove(key:String)
+        activate Map
+        deactivate Map
+        Inventory --> DeleteCommandIndex : deletedItem : InventoryItem
+        deactivate Inventory
+    end
+end
+
+
+DeleteCommandIndex -> Ui : printDelete(deletedItem:InventoryItem)
+activate Ui
+Ui --> DeleteCommandIndex : return
+deactivate Ui
+
+DeleteCommandIndex --> App : return
+deactivate DeleteCommandIndex
+
+App --> User : Item deleted
+deactivate App
+@enduml

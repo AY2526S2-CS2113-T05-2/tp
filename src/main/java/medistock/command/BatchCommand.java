@@ -9,7 +9,11 @@ import medistock.ui.Ui;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
+/**
+ * Command to add a new batch to an existing inventory item.
+ */
 public class BatchCommand extends Command {
     private final String name;
     private final int quantity;
@@ -22,21 +26,29 @@ public class BatchCommand extends Command {
     }
 
     @Override
-    public void execute(Inventory inventory, Ui ui, Storage storage) throws MediStockException {
-
+    public void execute(Inventory inventory, Ui ui, Storage storage, List<String> histories) throws MediStockException {
         if (!inventory.hasItem(this.name)) {
             throw new MediStockException("Item '" + this.name + "' does not exist in inventory." +
-                            " Please add the item first.");
+                    " Please add the item first.");
         }
         try {
             InventoryItem item = inventory.getItem(name);
-            int batchNumber = item.getBatchQuantity() + 1;
+            item.sortAndMarkExpiredBatches();
+            int batchNumber = item.getTotalBatchQuantity() + 1;
             Batch newBatch = new Batch(batchNumber, quantity, expiryDate);
             item.addBatch(newBatch);
             ui.printBatch(inventory, item, quantity, expiryDate);
+            histories.add(toHistoryString(item.getUnit()));
+
             storage.saveToFile(newBatch);
         } catch (IOException e) {
             throw new MediStockException("Failed to save to file: " + e.getMessage());
         }
     }
-}
+
+    public String toHistoryString(String unit) {
+        return "Added a batch of " + quantity + " " + unit + " of " + name + " with expiry date "
+                + expiryDate + ".";
+        }
+    }
+

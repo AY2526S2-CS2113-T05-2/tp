@@ -2,11 +2,15 @@ package medistock.inventory;
 
 import medistock.exception.MediStockException;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import static java.util.stream.Collectors.toList;
 
 /**
  * Represents the full inventory of tracked medical items.
@@ -20,6 +24,9 @@ public class Inventory {
     
     private final Map<String, InventoryItem> items;
 
+    /**
+     * Constructs an empty Inventory.
+     */
     public Inventory() {
         this.items = new HashMap<>();
     }
@@ -73,6 +80,25 @@ public class Inventory {
     }
 
     /**
+     * Finds all items whose name contain the specified keyword.
+     * The search is case-insensitive.
+     *
+     * @param keyword The keyword to search for in item names.
+     * @return List of items that match the keyword.
+     */
+    public List<InventoryItem> findItem(String keyword) {
+        assert  keyword != null: ASSERT_NAME_NOT_NULL;
+        String key = normalizeName(keyword);
+
+        List<InventoryItem> matchedItems = items.values().stream()
+                .filter(item -> item.getName()
+                        .toLowerCase()
+                        .contains(key))
+                .collect(toList());
+        return matchedItems;
+    }
+
+    /**
      * Removes the item with the given name.
      *
      * @param name The item name.
@@ -90,6 +116,13 @@ public class Inventory {
         return deletedItem;
     }
 
+    /**
+     * Removes the item at the specified index in the inventory.
+     *
+     * @param index The 1-based index of the item to delete.
+     * @return The deleted inventory item.
+     * @throws MediStockException If the index is out of bounds.
+     */
     public InventoryItem deleteItem(int index) throws MediStockException {
         if (index <= 0 || index > items.size()) {
             throw new MediStockException("Index entered out of bounds! Valid indices: 1 to " + items.size());
@@ -97,9 +130,10 @@ public class Inventory {
         int i = 0;
         InventoryItem deletedItem;
         for (String key : items.keySet()) {
-            if (i == index) {
+            if (i == index - 1) {
                 deletedItem = items.get(key);
                 items.remove(key);
+                logger.log(Level.INFO, "Deleted item: " + key);
                 return deletedItem;
             }
             i++;
@@ -125,6 +159,35 @@ public class Inventory {
         return items.size();
     }
 
+    public List<InventoryItem> getActiveBatches() {
+        return new ArrayList<>(items.values());
+    }
+
+    public int removeAllExpiredBatches() {
+        int total = 0;
+        for (InventoryItem item : items.values()) {
+            total += item.removeExpiredBatches();
+        }
+        return total;
+    }
+
+    public List<InventoryItem> getExpiredBatches() {
+        List<InventoryItem> expired = new ArrayList<>();
+        for (InventoryItem item : items.values()) {
+            if (!item.getExpiredBatches().isEmpty()) {
+                expired.add(item);
+            }
+        }
+        return expired;
+    }
+
+    /**
+     * Normalizes an item name by trimming whitespace and converting to lowercase.
+     * Used internally to ensure consistent key lookups.
+     *
+     * @param name The item name to normalize.
+     * @return The normalized name.
+     */
     private String normalizeName(String name) {
         assert name != null : ASSERT_NAME_NOT_NULL;
         return name.trim().toLowerCase();

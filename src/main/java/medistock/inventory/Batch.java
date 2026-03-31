@@ -13,6 +13,7 @@ public class Batch implements Storable {
     private final int batchNumber;
     private int quantity;
     private final LocalDate expiryDate;
+    private boolean isExpired = false;
 
     /**
      * Creates a batch with the specified batch number, quantity and expiry date.
@@ -38,6 +39,14 @@ public class Batch implements Storable {
 
     public LocalDate getExpiryDate() {
         return expiryDate;
+    }
+
+    public boolean isExpired() {
+        return isExpired;
+    }
+
+    public void markExpired() {
+        this.isExpired = true;
     }
 
     public void reduceQuantity(int quantity) {

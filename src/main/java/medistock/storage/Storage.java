@@ -17,6 +17,9 @@ import medistock.inventory.InventoryItem;
 import static java.nio.file.Files.exists;
 import static java.nio.file.Files.readAllLines;
 
+/**
+ * Handles loading and saving of inventory data to persistent storage.
+ */
 public class Storage {
     private final Path filePath;
 
@@ -50,7 +53,9 @@ public class Storage {
         }
     }
 
-    public String isSameItem(String itemName)
+    public String isSameItem(String itemName) {
+
+    }
 
     public String getItemName(String line) {
         String[] name = splitLine(line);
