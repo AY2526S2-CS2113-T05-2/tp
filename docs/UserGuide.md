@@ -63,19 +63,30 @@ date and stock health status.
     ____________________________________________________________
     ```
 
-### Deleting a Pharmaceutical: `delete`
-Removes a task from your list permanently.
+### Listing the History of Inventory: `history`
+Lists the history of changes in the inventory which includes 'create', 'batch', 'withdraw' and 'delete'.
+* **Format:** `history`
+* **Example Output:**
+
+    ```text
+    ____________________________________________________________
+    History of Stocks:
+    1. Created 'Vyvanse 70mg' of 'tablets' unit with minimum threshold of 10.
+    2. Added a batch of 200 tablets of Vyvanse 70mg with expiry date 2028-06-07.
+    3. Withdrawn 50 tablets of 'Vyvanse 70mg'.
+    4. Deleted 'Vyvanse 70mg'.
+    ____________________________________________________________
+    ```
+
+### Deleting a Medication Class: `delete`
+Removes an entire Medication Class from the inventory permanently.
 * **Format:** `delete n/NAME` or `delete i/INDEX`
 * **Example:** `delete n/Vyvanse 70mg` or `delete i/2`
 * **Example Output:**
 
     ```text 
     ____________________________________________________________
-    The following Pharmaceutical has been deleted   
-    2. Vyvanse 70mg
-     Total: 60 Tablets
-     Earliest Exp: 2028-06-07
-     Status: Critical
+    Product deleted: Vyvanse 70mg
     ____________________________________________________________
     ```
   
@@ -113,7 +124,7 @@ Withdraws a quantity of the keyed in medication from the database.
       1. Paracetamol 500mg
       Total: 250 Tablets
       Earliest Exp: 2030-09-30
-      Status: Crticial
+      Status: Critical
     ____________________________________________________________  
     ```
   
