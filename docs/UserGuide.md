@@ -37,46 +37,6 @@ Edits an existing medication entry in the inventory. You can update its name, un
     Product updated: Paracetamol 500mg -> Paracetamol 650mg (Tablets)
     Minimum threshold: 250
     ```
-  
-### Listing all Medications: `list`
-List all items in the inventory with their corresponding stock quantity, earliest expiry       
-date and stock health status.
-* **Format:** `list`
-* **Example Output:**
-
-    ```text
-    ____________________________________________________________
-    Current Active Pharmaceutical Inventory:
-    1. Paracetamol 500mg (Min: 250)
-        Batch 1: 300 Tablets, Exp: 2030-09-30
-        Total: 300 Tablets
-        Status: Healthy
-
-    2. Vyvanse 70mg (Min: 50)
-        Batch 1: 60 Tablets, Exp: 2028-06-07
-        Total: 60 Tablets
-        Status: Critical
-    ____________________________________________________________
-    Current Expired Pharmaceutical Inventory:
-    3. Amoxicillin 250mg
-        Batch 1: 100 Capsules, Exp: 2024-01-15
-    ____________________________________________________________
-    ```
-
-### Listing the History of Inventory: `history`
-Lists the history of changes in the inventory which includes 'create', 'batch', 'withdraw' and 'delete'.
-* **Format:** `history`
-* **Example Output:**
-
-    ```text
-    ____________________________________________________________
-    History of Stocks:
-    1. Created 'Vyvanse 70mg' of 'tablets' unit with minimum threshold of 10.
-    2. Added a batch of 200 tablets of Vyvanse 70mg with expiry date 2028-06-07.
-    3. Withdrawn 50 tablets of 'Vyvanse 70mg'.
-    4. Deleted 'Vyvanse 70mg'.
-    ____________________________________________________________
-    ```
 
 ### Deleting a Medication Class: `delete`
 Removes an entire Medication Class from the inventory permanently.
@@ -85,6 +45,23 @@ Removes an entire Medication Class from the inventory permanently.
 * **Example Output:**
 
     ```text 
+    ____________________________________________________________
+    list
+    ____________________________________________________________
+    Current Active Pharmaceutical Inventory:
+    1. Paracetamol 500mg (Min: 10)
+     Total: 0 pills
+     Status: Critical
+  
+    2. Vyvanse 70mg (Min: 10)
+        Batch 1: 200 tablets, Exp: 2028-06-07
+        Total: 200 tablets
+        Status: Healthy
+    ____________________________________________________________
+    Current Expired Pharmaceutical Inventory:
+    No expired batches found.
+    ____________________________________________________________
+    delete n/Vyvanse 70mg
     ____________________________________________________________
     Product deleted: Vyvanse 70mg
     ____________________________________________________________
@@ -156,6 +133,47 @@ Removes all expired batches from the inventory. Can target all items or a specif
     No expired batches found.
     ____________________________________________________________
     ```
+
+### Listing all Medications: `list`
+List all items in the inventory with their corresponding stock quantity, earliest expiry       
+date and stock health status.
+* **Format:** `list`
+* **Example Output:**
+
+    ```text
+    ____________________________________________________________
+    Current Active Pharmaceutical Inventory:
+    1. Paracetamol 500mg (Min: 250)
+        Batch 1: 300 Tablets, Exp: 2030-09-30
+        Total: 300 Tablets
+        Status: Healthy
+
+    2. Vyvanse 70mg (Min: 50)
+        Batch 1: 60 Tablets, Exp: 2028-06-07
+        Total: 60 Tablets
+        Status: Critical
+    ____________________________________________________________
+    Current Expired Pharmaceutical Inventory:
+    3. Amoxicillin 250mg
+        Batch 1: 100 Capsules, Exp: 2024-01-15
+    ____________________________________________________________
+    ```
+
+### Listing the History of Inventory: `history`
+Lists the history of changes in the inventory which includes `create`, `batch`, `withdraw` and `delete`.
+* **Format:** `history`
+* **Example Output:**
+
+    ```text
+    ____________________________________________________________
+    History of Stocks:
+    1. Created 'Vyvanse 70mg' of 'tablets' unit with minimum threshold of 10.
+    2. Added a batch of 200 tablets of Vyvanse 70mg with expiry date 2028-06-07.
+    3. Withdrawn 50 tablets of 'Vyvanse 70mg'.
+    4. Deleted 'Vyvanse 70mg'.
+    ____________________________________________________________
+    ```
+
 
 ### Quitting the Program: `exit`, `quit`
 Saves the inventory and safely exits from the application. <br>
