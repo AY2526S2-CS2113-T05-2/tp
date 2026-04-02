@@ -192,6 +192,50 @@ If the index is out of bounds, prints "Index entered out of bounds! Valid indice
 **Logging:**
 - INFO on command entry/exit and deleted item.
 
+### Feature: List Inventory
+
+![ListCommand_ClassDiagram](diagrams/ListCommand_ClassDiagram.png)
+![ListCommand_SequenceDiagram](diagrams/ListCommand_SequenceDiagram.png)
+
+**Purpose:** Display all inventory items maintained in memory, separated into active and expired batches.
+
+**Command word:** `list`
+
+**Format:**
+```
+list
+```
+
+Prints a comprehensive view of the entire pharmaceutical inventory, divided into two sections:
+1. Active batches (non-expired items)
+2. Expired batches (items past expiry date)
+
+Each item displays:
+- Index number (1-based enumeration)
+- Item name and minimum threshold
+- All batches with batch number, quantity, unit, and expiry date
+- Total active quantity
+- Stock status (Critical/Healthy)
+
+If the inventory is empty, prints "Your inventory is empty."
+
+**Behaviour:**
+1. Checks if inventory size is 0; if so, displays empty message
+2. Iterates through `inventory.getActiveBatches()` and prints each item via `printActiveItemDetails()`
+3. Iterates through `inventory.getExpiredBatches()` and prints each item via `printExpiredItemDetails()`
+4. For each item, calls `item.sortAndMarkExpiredBatches()` to ensure batches are properly categorized
+5. Displays batch-level details including batch number, quantity, unit, and expiry date
+
+**Failure cases & messages:**
+- None (arguments are ignored)
+- If inventory is empty: "Your inventory is empty."
+- If no active batches: "No active batches found."
+- If no expired batches: "No expired batches found."
+
+**Logging:**
+- INFO on command entry/exit
+- FINE for batch iteration
+
 ### Feature: Find Item
 
 **Purpose:** Search for inventory items by keyword and display matching results.
