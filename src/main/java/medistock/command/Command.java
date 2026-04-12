@@ -12,8 +12,7 @@ import medistock.ui.Ui;
  */
 public abstract class Command {
 
-    public abstract void execute(Inventory inventory, Ui ui,List<String> histories)
-                    throws MediStockException;
+    public abstract void execute(Inventory inventory, Ui ui, List<String> histories) throws MediStockException;
 
     public boolean isExit() {
         return false;

@@ -21,8 +21,7 @@ public class EditCommand extends Command {
     }
 
     @Override
-    public void execute(Inventory inventory, Ui ui, List<String> histories)
-            throws MediStockException {
+    public void execute(Inventory inventory, Ui ui, List<String> histories) throws MediStockException {
         InventoryItem updatedItem = inventory.editItem(oldName, newName, newUnit, newMinimumThreshold);
         ui.printEdit(oldName, updatedItem);
         histories.add(toHistoryString(updatedItem));

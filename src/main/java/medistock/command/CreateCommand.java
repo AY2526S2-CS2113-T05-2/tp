@@ -24,10 +24,10 @@ public class CreateCommand extends Command {
 
     @Override
     public void execute(Inventory inventory, Ui ui, List<String> histories) throws MediStockException {
-            InventoryItem item = new InventoryItem(name, unit, minimumThreshold);
-            inventory.addItem(item);
-            ui.printCreate(name, unit, minimumThreshold);
-            histories.add(toHistoryString());
+        InventoryItem item = new InventoryItem(name, unit, minimumThreshold);
+        inventory.addItem(item);
+        ui.printCreate(name, unit, minimumThreshold);
+        histories.add(toHistoryString());
     }
 
     public String toHistoryString() {
