@@ -51,16 +51,16 @@ public class Parser {
         } else if (text.equals("find") || input.startsWith("find ")) {
             String keyword = parseFind(text);
             return new FindCommand(keyword);
-        } else if (text.equals("help")) {
+        } else if (text.startsWith("help")) {
             return new HelpCommand();
         } else if (text.equals("remove-expired")) {
             return new RemoveExpiredCommand();
         } else if (text.startsWith("remove-expired n/")) {
             return prepareRemoveExpired(text);
         } else {
-            throw new MediStockException("Unknown command.");
+            throw new MediStockException("Unknown command: '" + input.split(" ")[0] + "'.\n"
+                    + "  - Type 'help' to see all available commands\n");
         }
-
     }
 
     /**
