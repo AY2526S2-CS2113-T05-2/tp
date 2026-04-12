@@ -76,18 +76,21 @@ The created item does not contain any batches yet; stock is added later through 
 1. Parses the user input to extract the item name, unit, and minimum threshold.
 2. Validates that `n/`, `u/`, and `min/` are present and that they appear in the correct order.
 3. Validates that name, unit, and minimum threshold are not empty.
-4. Parses the minimum threshold as a positive integer.
-5. Creates a `CreateCommand` with the validated values.
-6. Creates a new `InventoryItem` with the specified metadata and no batches, then calls `inventory.addItem(item)` to add it to the inventory.
-7. `inventory.addItem(item)` checks that another item with the same normalized name does not already exist.
-8. Calls `storage.saveToFile(item)` to append the new item to storage.
-9. Calls `ui.printCreate(name, unit, minimumThreshold)` to display the created item details.
-10. Records the creation in the command history.
+4. Validates that the name contains a drug name and does not contain a negative dosage value.
+5. Parses the minimum threshold as a positive integer.
+6. Creates a `CreateCommand` with the validated values.
+7. Creates a new `InventoryItem` with the specified metadata and no batches, then calls `inventory.addItem(item)` to add it to the inventory.
+8. `inventory.addItem(item)` checks that another item with the same normalized name does not already exist.
+9. Calls `storage.saveToFile(item)` to append the new item to storage.
+10. Calls `ui.printCreate(name, unit, minimumThreshold)` to display the created item details.
+11. Records the creation in the command history.
 
 **Failure cases & messages:**
 - If `n/`, `u/`, or `min/` is missing: "Invalid create format. Format: create n/NAME u/UNIT min/THRESHOLD"
 - If the argument order is invalid: "Use create format: Format: create n/NAME u/UNIT min/THRESHOLD"
 - If name, unit, or minimum threshold is empty: "Name, unit, and minimum threshold must not be empty."
+- If the name does not include a drug name: "Medication name must include a drug name."
+- If the name includes a negative dosage value: "Medication name must not include a negative dosage."
 - If the minimum threshold is not a valid number: "Minimum threshold must be a valid number."
 - If the minimum threshold is zero or negative: "Minimum threshold must be greater than 0."
 - If the item already exists in inventory: "Product already exists: \<name\>"

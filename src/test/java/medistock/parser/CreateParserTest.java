@@ -19,6 +19,14 @@ public class CreateParserTest {
     }
 
     @Test
+    void parseCommand_validCreateWithPositiveDosage_returnsCreateCommand() throws MediStockException {
+        String input = "create n/Paracetamol 500mg u/Tablets min/10";
+
+        Command command = Parser.parseCommand(input);
+        assertInstanceOf(CreateCommand.class, command);
+    }
+
+    @Test
     void parseCommand_missingNameTag_throwsException() {
         String input = "create u/Tablets min/10";
 
@@ -53,6 +61,30 @@ public class CreateParserTest {
     @Test
     void parseCommand_emptyName_throwsException() {
         String input = "create n/ u/Tablets min/10";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_dosageOnlyName_throwsException() {
+        String input = "create n/ 100mg u/Tablets min/10";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_negativeDosageInName_throwsException() {
+        String input = "create n/Paracetamol -100mg u/Tablets min/200";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_spacedNegativeDosageInName_throwsException() {
+        String input = "create n/Paracetamol -100 mg u/Tablets min/200";
 
         assertThrows(MediStockException.class,
                 () -> Parser.parseCommand(input));
