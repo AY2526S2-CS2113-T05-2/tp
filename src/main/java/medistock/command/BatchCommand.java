@@ -6,7 +6,6 @@ import medistock.inventory.Inventory;
 import medistock.inventory.InventoryItem;
 import medistock.ui.Ui;
 
-import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -30,26 +29,22 @@ public class BatchCommand extends Command {
             throw new MediStockException("Item '" + this.name + "' does not exist in inventory." +
                     " Please add the item first.");
         }
-        try {
-            InventoryItem item = inventory.getItem(name);
-            item.sortAndMarkExpiredBatches();
-            int batchNumber = item.getAndIncrementBatchNumber();
-            if (expiryDate.isBefore(LocalDate.now())) {
-                String errorMessage = "This batch is already expired (" + expiryDate + ").";
-                if (!ui.wasMessageConfirm(errorMessage)) {
-                    System.out.println("Batch not added.");
-                    ui.printAbortCommand();
-                    return;
-                }
+        InventoryItem item = inventory.getItem(name);
+        item.sortAndMarkExpiredBatches();
+        int batchNumber = item.getAndIncrementBatchNumber();
+        if (expiryDate.isBefore(LocalDate.now())) {
+            String errorMessage = "This batch is already expired (" + expiryDate + ").";
+            if (!ui.wasMessageConfirm(errorMessage)) {
+                System.out.println("Batch not added.");
+                ui.printAbortCommand();
+                return;
             }
-            Batch newBatch = new Batch(batchNumber, quantity, expiryDate);
-            item.addBatch(newBatch);
-            item.sortAndMarkExpiredBatches();
-            ui.printBatch(inventory, item, quantity, expiryDate);
-            histories.add(toHistoryString(item.getUnit()));
-        } catch (IOException e) {
-            throw new MediStockException("Failed to save to file: " + e.getMessage());
         }
+        Batch newBatch = new Batch(batchNumber, quantity, expiryDate);
+        item.addBatch(newBatch);
+        item.sortAndMarkExpiredBatches();
+        ui.printBatch(inventory, item, quantity, expiryDate);
+        histories.add(toHistoryString(item.getUnit()));
     }
 
     public String toHistoryString(String unit) {
