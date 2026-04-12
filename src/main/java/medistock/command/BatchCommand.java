@@ -36,6 +36,14 @@ public class BatchCommand extends Command {
             item.sortAndMarkExpiredBatches();
             int batchNumber = item.getTotalBatchQuantity() + 1;
             Batch newBatch = new Batch(batchNumber, quantity, expiryDate);
+            if (expiryDate.isBefore(LocalDate.now())) {
+                ui.printError("This batch is already expired (" + expiryDate + "). Add anyway? (y/n)");
+                String confirmation = ui.getInput();
+                if (!confirmation.trim().equalsIgnoreCase("y")) {
+                    ui.printError("Batch not added.");
+                    return;
+                }
+            }
             item.addBatch(newBatch);
             ui.printBatch(inventory, item, quantity, expiryDate);
             histories.add(toHistoryString(item.getUnit()));
