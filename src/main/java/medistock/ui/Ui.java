@@ -373,7 +373,7 @@ public class Ui {
 
         String itemName = item.getName();
 
-        System.out.printf("Batch of %d %s, expiring on %3$tF %n has been successfully to" +
+        System.out.printf("Batch of %d %s, expiring on %3$tF %n has been successfully added to" +
                 " the inventory!%n", quantity, itemName, date);
         printLine();
         System.out.println(String.format("Stock of %s is now:", itemName));
