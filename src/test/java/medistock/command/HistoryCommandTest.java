@@ -3,7 +3,6 @@ package medistock.command;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +14,7 @@ import medistock.ui.Ui;
 
 /**
  * Tests the HistoryCommand class.
- * Uses a Ui stub so that the command can be tested in isolation from the real Ui.
+ * Uses an Ui stub so that the command can be tested in isolation from the real Ui.
  */
 class HistoryCommandTest {
     /**

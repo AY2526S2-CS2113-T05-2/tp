@@ -23,7 +23,7 @@ public class CreateCommandTest {
     Path tempDir;
 
     @Test
-    void execute_validCreate_completesAndAddsItem() throws IOException {
+    void execute_validCreate_completesAndAddsItem() {
         Inventory inventory = new Inventory();
         Ui ui = new Ui();
         List<String> histories = new ArrayList<>();
