@@ -41,7 +41,7 @@ public class BatchCommand extends Command {
                     System.out.println("Batch not added.");
                     ui.printAbortCommand();
                     return;
-                };
+                }
             }
             Batch newBatch = new Batch(batchNumber, quantity, expiryDate);
             item.addBatch(newBatch);

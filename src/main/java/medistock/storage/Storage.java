@@ -31,10 +31,9 @@ public class Storage {
     /**
      * Saves newly created Item to data.txt
      *
-     * @param data the data to be saved
+     * @param inventory the inventory to be saved
      * @throws IOException if an Error occurs while reading the file
      */
-
     public void saveToFile(Inventory inventory) throws IOException {
         try (BufferedWriter bw = new BufferedWriter(new FileWriter(filePath.toFile(), false))) {
             for (InventoryItem item : inventory.getAllItems()) {
