@@ -270,6 +270,12 @@ the earliest-expiring batch first.
 **Q:** Where can I find the index of the medical item?  
 **A:** The index is the number shown beside the item in the output of the `list` command.
 
+**Q:** Why is my stock healthy, but the withdraw command says I have insufficient stock to withdraw?
+**A:** The application only allows withdrawal from non-expired batches. A `Healthy` status only means the current stock 
+is above the medication’s minimum threshold. It does not guarantee that there is enough non-expired stock to fulfill 
+every withdrawal request. If the available non-expired stock is less than the requested quantity, the application will 
+show an insufficient stock message.
+
 ## Known Issues
 - NIL
 <div style="page-break-after: always;"></div>
