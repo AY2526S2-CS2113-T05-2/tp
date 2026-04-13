@@ -32,15 +32,15 @@ public class Parser {
     public static Command parseCommand(String input) throws MediStockException {
         String text = input.trim();
 
-        if (text.startsWith("create ")) {
+        if (isCommandInput(text, "create")) {
             return prepareCreate(text);
-        } else if (text.startsWith("edit ")) {
+        } else if (isCommandInput(text, "edit")) {
             return prepareEdit(text);
-        } else if (text.startsWith("batch ")) {
+        } else if (isCommandInput(text, "batch")) {
             return prepareBatch(text);
-        } else if (text.startsWith("withdraw ")) {
+        } else if (isCommandInput(text, "withdraw")) {
             return prepareWithdraw(text);
-        } else if (text.startsWith("delete ")) {
+        } else if (isCommandInput(text, "delete")) {
             return prepareDelete(text);
         } else if (text.equals("list")) {
             return new ListCommand();
@@ -62,6 +62,10 @@ public class Parser {
                     + "  - Type <help> to see all available command formats."
                     + "  - Type <list> to view the current inventory state.");
         }
+    }
+
+    private static boolean isCommandInput(String text, String commandWord) {
+        return text.equals(commandWord) || text.startsWith(commandWord + " ");
     }
 
     /**
