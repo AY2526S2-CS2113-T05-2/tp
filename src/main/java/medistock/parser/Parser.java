@@ -18,11 +18,14 @@ import medistock.ui.Ui;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Parses user input and converts it into executable commands.
  */
 public class Parser {
+    private static final Logger logger = Logger.getLogger(Parser.class.getName());
     private static final String DOSAGE_UNITS = "mcg|mg|g|kg|ml|l|iu|units?|tablets?|capsules?";
     private static final String DOSAGE_PATTERN = "\\b\\d+(?:\\.\\d+)?\\s*(?:" + DOSAGE_UNITS + ")\\b";
     private static final String NEGATIVE_DOSAGE_PATTERN =
@@ -30,14 +33,19 @@ public class Parser {
     private static final String DOSAGE_UNIT_PATTERN = "\\b(?:" + DOSAGE_UNITS + ")\\b";
 
     public static Command parseCommand(String input) throws MediStockException {
+        assert input != null : "Input should not be null";
+        
         String text = input.trim();
 
         if (text.isEmpty()) {
+            logger.log(Level.WARNING, "Empty command received");
             throw new MediStockException("Command cannot be empty");
         }
         
         // Extract command word (first word or phrase) and make it lowercase for case-insensitive matching
         String commandWord = text.split("\\s+", 2)[0].toLowerCase();
+        
+        logger.log(Level.FINE, "Parsing command: " + commandWord);
         
         if (commandWord.equals("create")) {
             return prepareCreate(text);
@@ -65,6 +73,7 @@ public class Parser {
         } else if (text.toLowerCase().startsWith("remove-expired n/")) {
             return prepareRemoveExpired(text);
         } else {
+            logger.log(Level.WARNING, "Invalid command received: " + commandWord);
             throw new MediStockException("Invalid command: '" + input.split(" ")[0] + "'.\n"
                     + "  - Type <help> to see all available command formats."
                     + "  - Type <list> to view the current inventory state.");
@@ -131,6 +140,34 @@ public class Parser {
         return index + 1;
     }
 
+    private static int countPrefixOccurrences(String text, String prefix) {
+        int count = 0;
+        int index = text.indexOf(" " + prefix);
+        while (index != -1) {
+            count++;
+            index = text.indexOf(" " + prefix, index + 1);
+        }
+        return count;
+    }
+
+    private static void rejectDuplicatePrefixes(String text, String errorMessage, String... prefixes)
+            throws MediStockException {
+        for (String prefix : prefixes) {
+            if (countPrefixOccurrences(text, prefix) > 1) {
+                throw new MediStockException(errorMessage);
+            }
+        }
+    }
+
+    private static void rejectUnexpectedTextBeforeFirstPrefix(
+            String text, String commandWord, String expectedPrefix, String errorMessage)
+            throws MediStockException {
+        String arguments = text.substring(commandWord.length()).trim();
+        if (!arguments.startsWith(expectedPrefix)) {
+            throw new MediStockException(errorMessage);
+        }
+    }
+
     /**
      * Parses the "batch" command input and prepares a BatchCommand for execution.
      *
@@ -148,9 +185,12 @@ public class Parser {
             throw new MediStockException("Invalid batch format. " + Ui.BATCH_FORMAT);
         }
 
+        String invalidOrderMessage = "Ensure the arguments are in the correct order:" + Ui.BATCH_FORMAT;
+        rejectDuplicatePrefixes(text, invalidOrderMessage, "n/", "q/", "d/");
+        rejectUnexpectedTextBeforeFirstPrefix(text, "batch", "n/", invalidOrderMessage);
+
         if (!(nameIndex < quantIndex && quantIndex < expiryIndex)) {
-            throw new MediStockException("Ensure the arguments are in the correct order:" +
-                            Ui.BATCH_FORMAT);
+            throw new MediStockException(invalidOrderMessage);
         }
 
         String name = getArgument(text, nameIndex, quantIndex).trim();
@@ -198,6 +238,8 @@ public class Parser {
             throw new MediStockException("Invalid create format. " + Ui.CREATE_FORMAT);
         }
 
+        rejectDuplicatePrefixes(text, "Use create format: " + Ui.CREATE_FORMAT, "n/", "u/", "min/");
+
         if (!(nameIndex < unitIndex && unitIndex < minIndex)) {
             throw new MediStockException("Use create format: " + Ui.CREATE_FORMAT);
         }
@@ -241,6 +283,8 @@ public class Parser {
             throw new MediStockException("Invalid edit format. " + Ui.EDIT_FORMAT);
         }
 
+        rejectDuplicatePrefixes(text, "Use edit format: " + Ui.EDIT_FORMAT, "o/", "n/", "u/", "min/");
+
         if (nameIndex == -1 && unitIndex == -1 && minIndex == -1) {
             throw new MediStockException("Edit command requires at least one field to update.");
         }
@@ -278,6 +322,12 @@ public class Parser {
                     getNextIndex(text, nameIndex, unitIndex, minIndex)).trim();
             if (newName.isEmpty()) {
                 throw new MediStockException("New item name must not be empty.");
+            }
+            if (!hasDrugName(newName)) {
+                throw new MediStockException("Medication name must include a drug name.");
+            }
+            if (hasNegativeDosage(newName)) {
+                throw new MediStockException("Medication must not include a negative dosage.");
             }
         }
 
@@ -324,8 +374,12 @@ public class Parser {
         if (nameIndex == -1 || quantityIndex == -1) {
             throw new MediStockException("Invalid withdraw format. " + Ui.WITHDRAW_FORMAT);
         }
+        String invalidOrderMessage = "Use correct format: " + Ui.WITHDRAW_FORMAT;
+        rejectDuplicatePrefixes(text, invalidOrderMessage, "n/", "q/");
+        rejectUnexpectedTextBeforeFirstPrefix(text, "withdraw", "n/", invalidOrderMessage);
+
         if (!(nameIndex < quantityIndex)) {
-            throw new MediStockException("Use correct format: " + Ui.WITHDRAW_FORMAT);
+            throw new MediStockException(invalidOrderMessage);
         }
 
         String name = getArgument(text, nameIndex, quantityIndex);

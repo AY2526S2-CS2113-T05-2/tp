@@ -85,6 +85,22 @@ public class EditParserTest {
     }
 
     @Test
+    void parseCommand_dosageOnlyNewName_throwsException() {
+        String input = "edit o/Aspirin n/100mg";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_negativeDosageInNewName_throwsException() {
+        String input = "edit o/Aspirin n/Paracetamol -100mg";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
     void parseCommand_emptyNewUnit_throwsException() {
         String input = "edit o/Aspirin u/ min/20";
 
@@ -119,6 +135,38 @@ public class EditParserTest {
     @Test
     void parseCommand_wrongTagOrder_throwsException() {
         String input = "edit n/Aspirin 500mg o/Aspirin";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_duplicateOldNameTag_throwsException() {
+        String input = "edit o/Aspirin o/Panadol n/Ibuprofen";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_duplicateNewNameTag_throwsException() {
+        String input = "edit o/Aspirin n/Panadol n/Ibuprofen";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_duplicateUnitTag_throwsException() {
+        String input = "edit o/Aspirin u/Tablets u/Capsules";
+
+        assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_duplicateMinTag_throwsException() {
+        String input = "edit o/Aspirin min/10 min/20";
 
         assertThrows(MediStockException.class,
                 () -> Parser.parseCommand(input));

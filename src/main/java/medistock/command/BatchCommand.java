@@ -27,11 +27,10 @@ public class BatchCommand extends Command {
     public void execute(Inventory inventory, Ui ui, List<String> histories) throws MediStockException {
         if (!inventory.hasItem(this.name)) {
             throw new MediStockException("Item '" + this.name + "' does not exist in inventory." +
-                    " Please add the item first.");
+                    "Please add the item to the inventory first.");
         }
         InventoryItem item = inventory.getItem(name);
         item.sortAndMarkExpiredBatches();
-        int batchNumber = item.getAndIncrementBatchNumber();
         if (expiryDate.isBefore(LocalDate.now())) {
             String errorMessage = "This batch is already expired (" + expiryDate + ").";
             if (!ui.wasMessageConfirm(errorMessage)) {
@@ -40,6 +39,7 @@ public class BatchCommand extends Command {
                 return;
             }
         }
+        int batchNumber = item.getBatchNumber();
         Batch newBatch = new Batch(batchNumber, quantity, expiryDate);
         item.addBatch(newBatch);
         item.sortAndMarkExpiredBatches();

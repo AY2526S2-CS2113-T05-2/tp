@@ -29,7 +29,7 @@
 
 This developer guide was inspired by 
 (https://se-education.org/addressbook-level4/DeveloperGuide.html#design)
-<br>
+<br> <br>
 Tools that helped with the creation of the MediStocks logo: <br>
 (https://www.asciiart.eu/text-to-ascii-art) <br>
 (https://www.asciiart.eu/image-to-ascii)
@@ -148,35 +148,49 @@ Finds the specified item using its current name, applies the requested updates, 
 ### Feature: Add Batch
 ![BatchCommand_ClassDiagram.png](diagrams/BatchCommand_ClassDiagram.png)
 ![BatchCommand_SequenceDiagram.png](diagrams/BatchCommand_SequenceDiagram.png)
-**Purpose:** Add a new batch of stock to an existing medication or inventory item,
-tracking its specific quantity and expiry date.
+**Purpose:** Add a new batch of stock to an existing inventory item, tracking its quantity and expiry date. Includes a safety check to warn users when adding already-expired stock.
 
 **Command Word:** `batch`
-**Format:**
-```
-batch n/<name> q/<quantity> d/<expiryDate>
-```
-Finds the item by name in the inventory, organizes existing batches to flag expired ones,
-generates a new batch with the specified quantity and expiry date, and appends it to the item's record.
-Finally, it updates the storage file and command history.
+
+**Format:** `batch n/<name> q/<quantity> d/<expiryDate>`
+
+Finds the item by name, organizes existing batches to flag expired ones, and verifies the new batch's expiry date. If valid (or confirmed by the user), generates a new batch and appends it to the item's record. Control then returns to the main loop to update storage and command history.
 
 **Behaviour:**
-1. Parses the user input using prepareBatch to extract the item name, quantity, and expiry date.
-2. Validates that all prefixes `(n/, q/, d/)` are present and in the correct sequential order.
-3. Ensures the quantity is a positive integer. and expiry date matches the `YYYY-MM-DD` format
-4. Instantiates a new `BatchCommand` with the extracted parameters
-5. Calls `BatchCommand.execute()`, which also checks if the item exists in the inventory.
-6. Calls `item.sortAndMarkExpiredBatches()` to organize the item's current stock
-7. Calculates the new batch number and instantiates the `Batch` object
-8. Calls `item.addBatch(newBatch)` to attach it to the inventory item
-9. Calls `ui.printBatch()` to display the success message and updated stock details
-10. Records the addition in the command history and saves the new batch to storage via `storage.saveToFile()`.
+1. `MediStock` retrieves user input via `ui.getInput()` and passes it to `Parser.parseCommand(input)`.
+2. `Parser` identifies the `batch` command word and calls `prepareBatch()` to extract the item name, quantity, and expiry date.
+3. Validates that all prefixes (`n/`, `q/`, `d/`) are present and in the correct order, that quantity is a positive integer, and that the expiry date matches `YYYY-MM-DD` format.
+4. Instantiates a new `BatchCommand` with the extracted parameters and returns it to the main loop.
+5. The main loop calls `command.execute(inventory, ui, histories)`.
+6. `BatchCommand.execute()` checks if the item exists via `inventory.hasItem(name)`. If not, it prints an error and aborts.
+7. Retrieves the item via `inventory.getItem(name)` and calls `item.sortAndMarkExpiredBatches()` to organize current stock.
+8. Expiration Check: Checks if `expiryDate` is before the current date. If so, calls `ui.wasMessageConfirm()` to prompt the user to confirm. If the user declines, the command aborts. *(See wasMessageConfirm Sequence Diagram)*
+9. ID Generation: Only after confirmation, retrieves the next batch number via `item.getBatchNumber()`. This prevents ID slots from being consumed by aborted commands.
+10. Instantiates the `Batch` object and calls `item.addBatch(newBatch)`.
+11. Calls `item.sortAndMarkExpiredBatches()` again to sort the updated batch list.
+12. Calls `ui.printBatch()` to display the success message and updated stock details.
+13. Returns to the `MediStock` loop, which saves updates to the local storage after each command.
+
+> **Design Note:** `wasMessageConfirm(String message)` is a general-purpose `Ui` method only used in `BatchCommand`,
+> it was a design option that enabled the user to add an expired pharmaceutical while ensuring that it was not accidental.  
+> This allows MediStock to still mantain an accurate account of an IRL pharmacy whom might still have expired pharmaceuticals to be thrown in their inventory. 
+> It is designed to be reusable across any future command requiring inline user confirmation. <br>
+>
+> ![ConfirmationMessage_SequenceDiagram.png](diagrams/ConfirmationMessage_SequenceDiagram.png)
 
 **Failure cases & messages:**
-- If any prefix is missing: "Invalid batch format. Format: batch n/NAME q/QUANTITY d/EXPIRY_DATE(YYYY-MM-DD)"
-- If prefixes are out of order: "Ensure the arguments are in the correct order:"
-- If quantity is not a number or is empty: "Invalid quantity. Please enter a positive whole number for the quantity"
-- If expiry data format is incorrect: "Invalid expiry date. Please use a valid format (e.g., YYYY-MM-DD)."
+- Item does not exist: `"Item 'NAME' does not exist in inventory. Please add the item to the inventory first."`
+- Missing prefix: `"Invalid batch format. Format: batch n/NAME q/QUANTITY d/EXPIRY_DATE(YYYY-MM-DD)"`
+- Prefixes out of order: `"Ensure the arguments are in the correct order:"`
+- Invalid quantity: `"Invalid quantity. Please enter a positive whole number for the quantity"`
+- Invalid date format: `"Invalid expiry date. Please use a valid format (e.g., YYYY-MM-DD)."`
+- User aborts expired batch: `"Batch not added. Command aborted."`
+
+**Logging:**
+- **INFO:** On successful batch creation and addition.
+- **WARNING:** When a user attempts to add an expired batch (triggers confirmation prompt).
+- **WARNING:** When a duplicate or conflicting batch ID is detected.
+
 ### Feature: Withdraw Stock
 
 ![WithdrawCommand_SequenceDiagram](diagrams/WithdrawCommandSequenceDiagram.png)
@@ -369,8 +383,7 @@ Searches all inventory items for names containing the specified keyword (case-in
 
 ### Feature: List History
 
-![HistoryCommand_ClassDiagram](diagrams/HistoryCommand_ClassDiagram.png)
-![HistoryCommand_SequenceDiagram](diagrams/HistoryCommand_SequenceDiagram.png)
+![HistoryCommand_SequenceDiagram](diagrams/HistoryCommandSequenceDiagram.png)
 
 **Purpose:** Display previous changes (ie `create`, `batch`, `withdraw`, `delete`, `remove-expired`) to the inventory in a sequential manner.
 
@@ -468,8 +481,6 @@ This is not a user-invoked command. It is an internal mechanism triggered automa
 **Design rationale:**
 Rather than requiring the user to manually check for expired stock, this mechanism ensures that expired batches are surfaced as warnings during routine operations (listing, withdrawing, adding batches). This reduces the risk of dispensing expired medicine.
 
-### Feature: Low Stock Warning
-
 ### Feature: Help Command
 
 ![HepCommand_SequenceDiagram](diagrams/HelpCommand_SequenceDiagram.png)
@@ -524,28 +535,72 @@ Displays a farewell message and terminates the application.
 3. `System.exit(0)` terminates the JVM
 
 
-### Feature: Data Storage 
-![Storage_ClassDiagram_new.png](diagrams/Storage_ClassDiagram_new.png)
-![Storage_init_SequenceDiagram.png](diagrams/Storage_init_SequenceDiagram.png)
-![Storage_saving_SequenceDiagram.png](diagrams/Storage_saving_SequenceDiagram.png)
-<br> <br>
-**Purpose:** Responsible for persisting the state of the `Inventory` to a local text file, and loading it back into memory upon
-application startup <br>
+### Feature: Local Storage
+After every user command, both the Inventory and History storage components update their respective .txt files on the 
+user's local drive. Because these save operations execute sequentially within the same command flow, they are 
+illustrated together in a single sequence diagram.
+![LocalStorage_SequenceDiagram.png](diagrams/LocalStorage_SequenceDiagram.png)
+<br>
 
-**Behaviour** 
-* ***Appending Single Entries:*** When a command only adds new data such as adding a new `InventoryItem` or a single `Batch`,
-the `saveToFile(Storable data)` method is invoked, since both `InventoryItem` and `Batch` implements the `storable`
-interface, this method polymorphically calls `data.toFileFormat()` and simply appends the resulting formatted string to
-the end of the existing text file, appropriately. 
-* ***Full Inventory Overwrites:*** When a command modifies existing data or removes item (i.e `withdraw` or `delete`) the
-text file completely updates itself to reflect the new state. It does so vie the `saveToFile(Inventory inventory) method`
-which iterates through the entire `Inventory`, retrieving every `InventoryItem` and looping through all of its associated 
-`Batch` objects. It calls `toFileFormat()` on each entity and completely overwrites the text file from top to bottom. 
-This ensures that the saved data perfectly mirrors the current state in memory. 
-* ***Loading Data:*** Upon initialization, `MediStock` calls `initializeInventory()`. If a save file exists, it proceeds to
-read the file line by line. The `Storage` class utilizes Regular Expressions to parse the text strings back into distinct
-`InventoryItem` and `Batch` objects. It relies on the fixed ordering of the saved data to correctly reconstruct the
-hierarchical inventory structure in memory. 
+### Feature: Inventory Storage
+![InventoryStorage_ClassDiagram.png](diagrams/InventoryStorage_ClassDiagram.png)
+![StorageInitialization_SequenceDiagram.png](diagrams/StorageInitialization_SequenceDiagram.png)
+
+**Purpose:** Responsible for persisting the state of the `Inventory` to a local text file,
+and loading it back into memory upon application startup
+
+<br>
+
+**Behaviour**
+
+* ***Inventory Initialization at Launch:*** When an existing file is found,
+  `readFromFile(inventory)` processes the text line by line. The storage class uses
+  Regular Expressions to parse lines of the data `.txt` file back into distinct
+  `InventoryItem` and `Batch` objects. Lines starting with `"Item:"` instantiate a new
+  `InventoryItem`, and subsequent lines (without `"Item:"`) instantiate `Batch` objects
+  linked to the most recently instantiated `InventoryItem`.
+
+* ***Full Inventory Overwrites (Saving):*** After each command that mutates the
+  `Inventory`, `saveToFile(inventory)` is triggered automatically. It iterates over every
+  `InventoryItem` held in the `Inventory`, and for each item writes its header line
+  followed by one line per associated `Batch` — reconstructing the full file from scratch.
+  The existing file is truncated and rewritten in its entirety, so the saved state on disk
+  always mirrors the current in-memory state exactly.
+<br>
+
+**Failure cases & messages:**
+Throws a `MediStockException` if it encounters corrupted data such as duplicate items, or formatting errors.
+
+
+**Data Organization**
+The inventory is persisted as a plain `.txt` file located at `data/medistock.txt`
+(created automatically on first save if it does not exist). The scheme for data formatting follows below with a
+concrete example:
+```
+Item: <name> (<unit>) | <minimumThreshold> | <nextBatchNumber>
+[Batches]
+<batchNumber> | <quantity> | <expiryDate>
+``` 
+```
+Item: Paracetamol (tablets) | 100 | 3
+[Batches]
+1 | 150 | 2026-06-01
+2 | 50 | 2025-12-31
+Item: Ibuprofen (tablets) | 50 | 2
+[Batches]
+1 | 80 | 2027-01-15
+```
+
+**Design Considerations:**
+* ***Overwriting vs. Appending:*** MediStock uses a full-overwrite strategy — each save
+  wipes the file and rewrites it completely from the current in-memory `Inventory`. This
+  was the simpler approach to implement, and ensures the file is always a clean,
+  complete snapshot of the current state with no stale or contradictory entries.
+
+* ***Including `nextBatchNumber`:*** The `nextBatchNumber` field of each `InventoryItem`
+  is included in the file format so that batch numbering persists across sessions. As long
+  as an item is not deleted, its batch counter will continue incrementing correctly on
+  every subsequent batch addition, with no risk of reusing a previously assigned batch ID.
 
 ## Product scope
 ### Target user profile
@@ -604,13 +659,13 @@ simplifies stock-taking, and helps maintain minimum stock thresholds so that cri
 
 ## Appendix E: Instructions for Manual Testing
 
-The steps below assume the jar file is named `medistock.jar` and is run from its containing folder.
+The steps below assume the jar file is named `MediStock-v2.1.jar` and is run from its containing folder.
 
 ### Launching the application
 
 1. Ensure that Java 17 or above is installed.
-2. Open a terminal in the folder containing `medistock.jar`.
-3. Run `java -jar medistock.jar`.
+2. Open a terminal in the folder containing `MediStock-v2.1.jar`.
+3. Run `java -jar MediStock-v2.1.jar`.
 
 ### Starting from a clean state
 
@@ -620,21 +675,88 @@ The steps below assume the jar file is named `medistock.jar` and is run from its
 
 ### Suggested manual tests
 
+*Creating and Editing Items*
 1. Create a new item:
    - Command: `create n/Paracetamol 500mg u/Tablets min/250`
    - Expected: a success message is shown, and `list` displays the new item with no batches yet.
 2. Reject a duplicate create:
    - Command: `create n/Paracetamol 500mg u/Tablets min/250`
    - Expected: an error message is shown for the duplicate item.
-3. Edit an existing item:
+3. Create with missing fields (invalid format)
+   - Command: `create n/ u/Tablets min/250`
+   - Expected: An error message indicating that name, unit and minimum threshold must not be empty
+4. Edit an existing item:
    - Command: `edit o/Paracetamol 500mg n/Paracetamol 650mg u/Tablets min/300`
    - Expected: a success message is shown, and `list` displays the updated item details.
-4. Add stock and verify listing:
-   - Commands: `batch n/Paracetamol 650mg q/400 d/2027-12-31` followed by `list`
+5. Edit a non-exiting item
+   - Command: `edit o/Aspirin n/Aspirin Plus`
+   - Expected: An error message indicating the product is not found.
+
+*Adding and Managing Stock*
+1. Add stock and verify listing:
+   - Commands: `batch n/Paracetamol 650mg q/400 d/2030-12-31`
+   - followed by `list`
    - Expected: the item shows one batch with quantity `400`.
-5. Withdraw stock:
+2. Add stock with invalid date format
+   - Command: `batch n/Paracetamol 650mg q/100 d/invalid-date`
+   - Expected: An error message indicating invalid expiry date format.
+3. Add stock to a non-existent item
+   - Command: `batch n/Aspirin q/100 d/2027-12-31`
+   - Expected: An error message indicating the product is not found.
+
+*Withdrawing Stock*
+1. Withdraw stock:
    - Command: `withdraw n/Paracetamol 650mg q/50`
    - Expected: the displayed quantity decreases accordingly.
-6. Check command history:
-   - Command: `history`
-   - Expected: the earlier `create`, `edit`, `batch`, and `withdraw` actions appear in order.
+2. Withdraw more than available stock
+   - Command: `withdraw n/Paracetamol 650mg q/1000`
+   - Expected: An error message indicating insufficient stock.
+
+*Listing and Finding Items*
+1. List inventory (normal case)
+   - Command: `list`
+   - Expected: Displays all items with their active and expired batches.
+2. List inventory when empty
+   - Command: `list`
+   - Expected: Displays “Your inventory is empty.”
+3. Find an existing item
+   - Command: `find Paracetamol`
+   - Expected: Matching items are displayed.
+4. Find a non-existent item
+   - Command: `find Aspirin`
+   - Expected: Displays “No matches found!”
+
+*Expiry and Removal Features*
+1. Add an expired batch and verify detection
+   - Commands:
+   - `batch n/Paracetamol 650mg q/100 d/2024-01-01`
+   - followed by `list`
+   - Expected: The batch is shown under expired inventory, and a warning message may be displayed.
+2. Remove expired batches (all items)
+   - Command: `remove-expired`
+   - Expected: All expired batches are removed and a summary message is displayed.
+3. Remove expired batches for a specific item
+   - Command: `remove-expired n/Paracetamol 650mg`
+   - Expected: Only expired batches for the specified item are removed.
+
+*Deleting Items*
+1. Delete item by name
+   - Command: `delete n/Paracetamol 650mg`
+   - Expected: The item is removed from the inventory.
+2. Delete item by index
+   - Command: delete i/1
+   - Expected: The item at index 1 is removed.
+3. Delete with invalid index
+   - Command: delete i/999
+   - Expected: An error message indicating index is out of bounds.
+
+*History and Persistence*
+1. Check command history:
+    - Command: `history`
+    - Expected: the earlier `create`, `edit`, `batch`, and `withdraw` actions appear in order.
+2. Verify data persistence
+Steps:
+* Create or modify items
+* Exit the application using exit
+* Launch the application again
+* Expected: Inventory and history data are preserved after restarting.

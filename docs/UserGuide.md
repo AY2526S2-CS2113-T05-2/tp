@@ -12,7 +12,7 @@ when handling routine stock-management tasks.
    Mac users should follow the Java installation guide [here](https://se-education.org/guides/tutorials/javaInstallationMac.html).
 2. Download the latest version of `MediStock` from [here](https://github.com/AY2526S2-CS2113-W10-2/tp/releases).
 3. Open a terminal in the folder containing the downloaded JAR file.
-4. Run `java -jar medistock.jar`.
+4. Run `java -jar MediStock-v2.1.jar`.
 5. Type a command and press Enter.
 
 ## Features
@@ -36,8 +36,7 @@ Creates a new medication entry so its stock can be tracked.
     Minimum threshold: 250
     ____________________________________________________________
     ```
-    
-<div style="page-break-after: always;"></div>
+
 
 ### Editing a Medication: `edit`
 Edits an existing medication entry. You can update its name, unit, minimum threshold, or any combination of these.
