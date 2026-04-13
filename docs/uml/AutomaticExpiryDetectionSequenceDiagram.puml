@@ -5,7 +5,7 @@ participant ":Command" as Cmd
 participant ":InventoryItem" as Item
 participant ":Batch" as Batch
 
-note over Cmd : Triggered by withdraw,\nbatch, list, or\nremove-expired commands
+note over Cmd : Triggered by withdraw,\nbatch, or list commands
 
 Cmd -> Item : sortAndMarkExpiredBatches()
 activate Item

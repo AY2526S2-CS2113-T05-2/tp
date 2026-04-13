@@ -19,7 +19,7 @@
     - [Feature: Help Command](#feature-help-command)
     - [Feature: Exit Command](#feature-exit-command)
     - [Feature: Local Storage](#feature-local-storage)
-    - [Feature: Data Storage](#feature-data-storage)
+    - [Feature: Preserved Inventory](#feature-Preserved-Inventory)
 - [Product scope](#product-scope)
     - [Target user profile](#target-user-profile)
     - [Value proposition](#value-proposition)
