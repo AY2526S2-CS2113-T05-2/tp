@@ -374,8 +374,12 @@ public class Parser {
         if (nameIndex == -1 || quantityIndex == -1) {
             throw new MediStockException("Invalid withdraw format. " + Ui.WITHDRAW_FORMAT);
         }
+        String invalidOrderMessage = "Use correct format: " + Ui.WITHDRAW_FORMAT;
+        rejectDuplicatePrefixes(text, invalidOrderMessage, "n/", "q/");
+        rejectUnexpectedTextBeforeFirstPrefix(text, "withdraw", "n/", invalidOrderMessage);
+
         if (!(nameIndex < quantityIndex)) {
-            throw new MediStockException("Use correct format: " + Ui.WITHDRAW_FORMAT);
+            throw new MediStockException(invalidOrderMessage);
         }
 
         String name = getArgument(text, nameIndex, quantityIndex);
