@@ -2,6 +2,7 @@ package medistock.parser;
 
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import medistock.command.Command;
 import medistock.command.CreateCommand;
@@ -32,6 +33,15 @@ public class CreateParserTest {
 
         assertThrows(MediStockException.class,
                 () -> Parser.parseCommand(input));
+    }
+
+    @Test
+    void parseCommand_bareCreate_throwsInvalidCreateFormat() {
+        String input = "create";
+
+        MediStockException exception = assertThrows(MediStockException.class,
+                () -> Parser.parseCommand(input));
+        assertTrue(exception.getMessage().startsWith("Invalid create format."));
     }
 
     @Test

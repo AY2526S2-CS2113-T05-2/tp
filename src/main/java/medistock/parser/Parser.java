@@ -32,7 +32,7 @@ public class Parser {
     public static Command parseCommand(String input) throws MediStockException {
         String text = input.trim();
 
-        if (text.startsWith("create ")) {
+        if (isCommandInput(text, "create")) {
             return prepareCreate(text);
         } else if (text.startsWith("edit ")) {
             return prepareEdit(text);
@@ -62,6 +62,10 @@ public class Parser {
                     + "  - Type <help> to see all available command formats."
                     + "  - Type <list> to view the current inventory state.");
         }
+    }
+
+    private static boolean isCommandInput(String text, String commandWord) {
+        return text.equals(commandWord) || text.startsWith(commandWord + " ");
     }
 
     /**
