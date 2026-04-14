@@ -6,7 +6,7 @@ title Create Item Class Diagram
 
 class Parser
 
-abstract class Command {
+abstract class "<<abstract>>\nCommand" as Command {
     + execute(inventory: Inventory, ui: Ui, histories: List<String>)
 }
 
@@ -32,6 +32,6 @@ CreateCommand ..> Inventory : uses >
 CreateCommand ..> InventoryItem : creates >
 CreateCommand ..> Ui : uses >
 
-Inventory "1" *-- "*" InventoryItem : contains >
+Inventory "1" --> "*" InventoryItem : contains >
 
 @enduml
