@@ -58,10 +58,11 @@ public class Parser {
         } else if (commandWord.equals("delete")) {
             return prepareDelete(text);
         } else if (commandWord.equals("list")) {
-            rejectUnexpectedArguments(text, commandWord, "Use list format: list");
+            rejectUnexpectedArguments(text, commandWord, "The list command does not take any arguments. Format: list");
             return new ListCommand();
         } else if (commandWord.equals("history")) {
-            rejectUnexpectedArguments(text, commandWord, "Use history format: history");
+            rejectUnexpectedArguments(text, commandWord,
+                    "The history command does not take any arguments. Format: history");
             return new HistoryCommand();
         } else if (commandWord.equals("exit") || commandWord.equals("quit")) {
             return new ExitCommand();
