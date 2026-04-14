@@ -2,39 +2,57 @@
 
 ## Overview
 
-MediStock is a CLI-based inventory management application for pharmacists and clinical staff to track medicines, batches, expiry dates, and stock levels. It is designed for experienced users who prefer fast keyboard-driven workflows over GUI-based inventory systems.
+MediStock is a CLI-based inventory management application for pharmacists and clinical staff to track medicines, batches, expiry dates, and stock levels. It is designed for users who prefer fast keyboard-driven workflows over GUI-based inventory systems.
 
-My main contributions to MediStock were the `create` and `edit` commands, together with some of the early command architecture that connects user input to command execution in the main application loop. In particular, I contributed to the parser-command flow, the base `Command` abstraction, the initial inventory structure using `HashMap` storage, and the later `edit` feature across parsing, command execution, persistence, UI output, tests, and documentation.
+My main contributions focused on the `create` and `edit` command workflows, together with parser validation, command behavior, tests, and documentation for those areas. I also contributed to the early parser-command execution structure and later bug fixes for malformed command input.
 
-### Summary of Contributions
+## Summary of Contributions
 
-- **Code contributed:** [Code Dashboard link to be added]
+- **Code contributed:** [\[Reposense Link\]](https://nus-cs2113-ay2526-s2.github.io/tp-dashboard/?search=W10&sort=groupTitle&sortWithin=title&timeframe=commit&mergegroup=&groupSelect=groupByRepos&breakdown=true&checkedFileTypes=docs~functional-code~test-code~other&since=2026-02-20T00%3A00%3A00&filteredFileName=&tabOpen=true&tabType=authorship&tabAuthor=Yonish18&tabRepo=AY2526S2-CS2113-W10-2%2Ftp%5Bmaster%5D&authorshipIsMergeGroup=false&authorshipFileTypes=docs~functional-code~test-code&authorshipIsBinaryFileTypeChecked=false&authorshipIsIgnoredFilesChecked=false)
 
-- **Enhancements implemented:**
-  - Implemented the early command architecture for the project, including the initial `InventoryItem` model, `HashMap`-based inventory storage, the abstract `Command` class, parser integration, and execution through the main application loop.
-  - Implemented the `create` command from parser to execution. This included command syntax parsing, duplicate-item handling, and parser regression tests for valid and invalid input cases.
-  - Implemented the `edit` command end-to-end. This included command routing, parser validation, `EditCommand` execution, UI output, history recording, and persistence after edits.
-  - Added `Inventory.editItem(...)` support and the `InventoryItem.copyWithMetadata(...)` helper so an edited item is replaced with an updated version while preserving its existing batches.
-  - Implemented duplicate-rename conflict handling and fixed edit-prefix parsing issues, including coverage for a rename regression bug.
-  - Updated full inventory saving so expired batches are still preserved during save operations, which was needed to keep edited items consistent with existing stored inventory data.
-  - Added parser and execution tests for both `create` and `edit`, including invalid format cases, rename edge cases, and command-level behaviour checks.
+### Enhancements Implemented
 
-- **Contributions to the UG:**
-  - Updated the `create` command section so its wording and example output match the current interface.
-  - Added the `edit` command section to document its syntax, purpose, and expected output.
+- Contributed to the early command architecture, including the abstract `Command` class, parser integration, execution through the main application loop, and the initial inventory/item structure.
+- Implemented duplicate-rename conflict handling and fixed edit-prefix parsing issues, including coverage for rename-related regression cases.
+- Fixed full inventory saving so expired batches are preserved during save operations.
 
-- **Contributions to the DG:**
-  - Added the `Feature: Edit Item` section to the Developer Guide in the same format as the other command features.
-  - Created and refined the `EditCommand` sequence diagram to explain the main success flow from input parsing to inventory save and history save.
-  - Fixed the DG diagram integration so the rendered edit diagram appears correctly in the guide.
+- **Implemented the `create` command workflow.**
+  - Added parser support for `create n/NAME u/UNIT min/THRESHOLD`.
+  - Implemented command execution to create inventory items and reject duplicate products.
+  - Added regression tests for valid create commands and invalid create input cases.
 
-- **Contributions to team-based tasks:**
-  - Merged and maintained multiple feature/documentation branches for `edit`, UG updates, and DG updates.
-  - Helped keep project documentation consistent by aligning the edit feature write-up and diagram style with the rest of the guide.
-  - To be filled with actual PR/issue/task links.
+- **Implemented the `edit` command end-to-end.**
+  - Added parser routing and validation for `edit o/OLD_NAME [n/NEW_NAME] [u/NEW_UNIT] [min/NEW_THRESHOLD]`.
+  - Implemented `EditCommand` execution, UI output, and history recording.
+  - Added `Inventory.editItem(...)` and `InventoryItem.copyWithMetadata(...)` so item metadata can be updated while preserving existing batches.
+  - Added safeguards for duplicate rename conflicts and no-change edits.
 
-- **Review/mentoring contributions:**
-  - To be filled with actual PR review links.
+- **Improved parser validation and defensive handling.**
+  - Added validation for duplicate prefixes, missing command details, empty fields, invalid thresholds, invalid medication names, and negative dosage values in create/edit inputs.
+  - Added parser robustness fixes for malformed `batch`, `withdraw`, `delete`, `list`, and `history` command inputs discovered during testing.
 
-- **Contributions beyond the project team:**
-  - None to report.
+### Contributions to the UG
+
+- Updated the `create` command section to match the current command syntax and interface output.
+- Added the `edit` command section with its format, example command, and example output.
+- Added product introduction wording and fixed jar filename references to `MediStock-v2.1.jar`.
+
+### Contributions to the DG
+
+- Added and refined the `Feature: Create Item` section, including behavior, failure cases, and diagrams.
+- Added and refined the `Feature: Edit Item` section, including behavior and failure cases.
+- Created and updated UML diagrams for create/edit command flows, including the create class diagram and create/edit sequence diagrams.
+
+### Contributions to Team-Based Tasks
+
+- Maintained and merged feature, documentation, PPP, and bug-fix branches related to my work.
+- Helped keep the UG and DG consistent with the implemented create/edit behavior.
+- Added parser and command regression tests to reduce the risk of regressions in owned features.
+
+### Review / Mentoring Contributions
+
+- No substantial review or mentoring contributions to claim from repository evidence alone.
+
+### Contributions Beyond the Project Team
+
+- None to report.
