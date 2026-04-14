@@ -415,6 +415,13 @@ public class Parser {
     }
 
     private static Command prepareDelete(String text) throws MediStockException {
+        boolean hasNamePrefix = getPrefixedIndex(text, "n/") != -1;
+        boolean hasIndexPrefix = getPrefixedIndex(text, "i/") != -1;
+
+        if (hasNamePrefix && hasIndexPrefix) {
+            throw new MediStockException("Invalid delete format. " + Ui.DELETE_FORMAT);
+        }
+
         if (text.startsWith("delete n/")) {
             return prepareDeleteName(text);
         } else if (text.startsWith("delete i/")) {
