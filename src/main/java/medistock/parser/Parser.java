@@ -58,8 +58,10 @@ public class Parser {
         } else if (commandWord.equals("delete")) {
             return prepareDelete(text);
         } else if (commandWord.equals("list")) {
+            rejectUnexpectedArguments(text, commandWord, "Use list format: list");
             return new ListCommand();
         } else if (commandWord.equals("history")) {
+            rejectUnexpectedArguments(text, commandWord, "Use history format: history");
             return new HistoryCommand();
         } else if (commandWord.equals("exit") || commandWord.equals("quit")) {
             return new ExitCommand();
@@ -164,6 +166,14 @@ public class Parser {
             throws MediStockException {
         String arguments = text.substring(commandWord.length()).trim();
         if (!arguments.startsWith(expectedPrefix)) {
+            throw new MediStockException(errorMessage);
+        }
+    }
+
+    private static void rejectUnexpectedArguments(String text, String commandWord, String errorMessage)
+            throws MediStockException {
+        String arguments = text.substring(commandWord.length()).trim();
+        if (!arguments.isEmpty()) {
             throw new MediStockException(errorMessage);
         }
     }
